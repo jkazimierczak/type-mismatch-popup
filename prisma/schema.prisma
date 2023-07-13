@@ -17,18 +17,6 @@ model answers {
   test_attempts_answers test_attempts_answers[]
 }
 
-model profiles {
-  id                  String                @id @db.Uuid
-  updated_at          DateTime?             @db.Timestamptz(6)
-  username            String?               @unique
-  avatar_url          String?
-  first_name          String?
-  last_name           String?
-  quizzes             quizzes[]
-  quizzes_access_list quizzes_access_list[]
-  test_attempts       test_attempts[]
-}
-
 model question_types {
   id        Int         @id @default(autoincrement())
   name      String
@@ -51,7 +39,7 @@ model quizzes {
   author_id           String                @db.Uuid
   visibility_id       Int
   questions           questions[]
-  profiles            profiles              @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
+  user                User                  @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
   visibilities        visibilities          @relation(fields: [visibility_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_visibility")
   quizzes_access_list quizzes_access_list[]
 }
@@ -61,7 +49,7 @@ model quizzes_access_list {
   quiz_id    String    @db.Uuid
   expires_on DateTime? @db.Timestamp(6)
   quizzes    quizzes   @relation(fields: [quiz_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  profiles   profiles  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user       User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, quiz_id])
 }
@@ -72,7 +60,7 @@ model test_attempts {
   quiz_id               String                  @db.Uuid
   started_on            DateTime                @db.Timestamp(6)
   finished_on           DateTime?               @db.Timestamp(6)
-  profiles              profiles                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
+  user                  User                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
   test_attempts_answers test_attempts_answers[]
 }
 
@@ -127,6 +115,11 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  modified_at         DateTime?             @default(now())
+  quizzes             quizzes[]
+  quizzes_access_list quizzes_access_list[]
+  test_attempts       test_attempts[]
 }
 
 model VerificationToken {
