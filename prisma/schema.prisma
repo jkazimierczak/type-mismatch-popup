@@ -1,0 +1,137 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model answers {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question_id           String                  @db.Uuid
+  answer                String
+  is_correct            Boolean
+  questions             questions               @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question")
+  test_attempts_answers test_attempts_answers[]
+}
+
+model profiles {
+  id                  String                @id @db.Uuid
+  updated_at          DateTime?             @db.Timestamptz(6)
+  username            String?               @unique
+  avatar_url          String?
+  first_name          String?
+  last_name           String?
+  quizzes             quizzes[]
+  quizzes_access_list quizzes_access_list[]
+  test_attempts       test_attempts[]
+}
+
+model question_types {
+  id        Int         @id @default(autoincrement())
+  name      String
+  questions questions[]
+}
+
+model questions {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quiz_id          String         @db.Uuid
+  question         String
+  question_type_id Int
+  answers          answers[]
+  question_types   question_types @relation(fields: [question_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question_type")
+  quizzes          quizzes        @relation(fields: [quiz_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_quiz")
+}
+
+model quizzes {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  author_id           String                @db.Uuid
+  visibility_id       Int
+  questions           questions[]
+  profiles            profiles              @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
+  visibilities        visibilities          @relation(fields: [visibility_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_visibility")
+  quizzes_access_list quizzes_access_list[]
+}
+
+model quizzes_access_list {
+  user_id    String    @db.Uuid
+  quiz_id    String    @db.Uuid
+  expires_on DateTime? @db.Timestamp(6)
+  quizzes    quizzes   @relation(fields: [quiz_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles   profiles  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, quiz_id])
+}
+
+model test_attempts {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id               String                  @db.Uuid
+  quiz_id               String                  @db.Uuid
+  started_on            DateTime                @db.Timestamp(6)
+  finished_on           DateTime?               @db.Timestamp(6)
+  profiles              profiles                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
+  test_attempts_answers test_attempts_answers[]
+}
+
+model test_attempts_answers {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  test_attempt_id String        @db.Uuid
+  answer_id       String        @db.Uuid
+  is_checked      Boolean?
+  answers         answers       @relation(fields: [answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_answer")
+  test_attempts   test_attempts @relation(fields: [test_attempt_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_test_attempt")
+}
+
+model visibilities {
+  id         Int       @id @default(autoincrement())
+  visibility String
+  quizzes    quizzes[]
+}
+
+// Necessary for Next auth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
