@@ -8,78 +8,93 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model answers {
-  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  question_id           String                  @db.Uuid
-  answer                String
-  is_correct            Boolean
-  questions             questions               @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question")
-  test_attempts_answers test_attempts_answers[]
+model Answers {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId          String                @db.Uuid
+  answer              String
+  isCorrect           Boolean
+  questions           Questions             @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question")
+  testAttemptsAnswers TestAttemptsAnswers[]
 }
 
-model question_types {
+model Profiles {
+  id                String              @id @db.Uuid
+  updatedAt         DateTime?           @db.Timestamptz(6)
+  username          String?             @unique
+  avatarUrl         String?
+  firstName         String?
+  lastName          String?
+  quizzes           Quizzes[]
+  quizzesAccessList QuizzesAccessList[]
+  testAttempts      TestAttempts[]
+}
+
+model QuestionTypes {
   id        Int         @id @default(autoincrement())
   name      String
-  questions questions[]
+  questions Questions[]
 }
 
-model questions {
-  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quiz_id          String         @db.Uuid
-  question         String
-  question_type_id Int
-  answers          answers[]
-  question_types   question_types @relation(fields: [question_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question_type")
-  quizzes          quizzes        @relation(fields: [quiz_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_quiz")
+model Questions {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId         String        @db.Uuid
+  question       String
+  questionTypeId Int
+  answers        Answers[]
+  questionTypes  QuestionTypes @relation(fields: [questionTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question_type")
+  quizzes        Quizzes       @relation(fields: [quizId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_quiz")
 }
 
-model quizzes {
+model Quizzes {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String
+  authorId          String              @db.Uuid
+  visibilityId      Int
+  questions         Questions[]
+  profiles          Profiles            @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
+  visibilities      Visibilities        @relation(fields: [visibilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_visibility")
+  quizzesAccessList QuizzesAccessList[]
+  User              User?               @relation(fields: [userId], references: [id])
+  userId            String?
+}
+
+model QuizzesAccessList {
+  userId    String    @db.Uuid
+  quizId    String    @db.Uuid
+  expiresOn DateTime? @db.Timestamp(6)
+  quizzes   Quizzes   @relation(fields: [quizId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles  Profiles  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User      User      @relation(fields: [userId], references: [id])
+
+  @@id([userId, quizId])
+}
+
+model TestAttempts {
   id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                String
-  author_id           String                @db.Uuid
-  visibility_id       Int
-  questions           questions[]
-  user                User                  @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
-  visibilities        visibilities          @relation(fields: [visibility_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_visibility")
-  quizzes_access_list quizzes_access_list[]
+  userId              String                @db.Uuid
+  quizId              String                @db.Uuid
+  startedOn           DateTime              @db.Timestamp(6)
+  finishedOn          DateTime?             @db.Timestamp(6)
+  profiles            Profiles              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
+  testAttemptsAnswers TestAttemptsAnswers[]
+  User                User                  @relation(fields: [userId], references: [id])
 }
 
-model quizzes_access_list {
-  user_id    String    @db.Uuid
-  quiz_id    String    @db.Uuid
-  expires_on DateTime? @db.Timestamp(6)
-  quizzes    quizzes   @relation(fields: [quiz_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user       User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([user_id, quiz_id])
+model TestAttemptsAnswers {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  testAttemptId String       @db.Uuid
+  answerId      String       @db.Uuid
+  isChecked     Boolean?
+  answers       Answers      @relation(fields: [answerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_answer")
+  testAttempts  TestAttempts @relation(fields: [testAttemptId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_test_attempt")
 }
 
-model test_attempts {
-  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id               String                  @db.Uuid
-  quiz_id               String                  @db.Uuid
-  started_on            DateTime                @db.Timestamp(6)
-  finished_on           DateTime?               @db.Timestamp(6)
-  user                  User                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
-  test_attempts_answers test_attempts_answers[]
-}
-
-model test_attempts_answers {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  test_attempt_id String        @db.Uuid
-  answer_id       String        @db.Uuid
-  is_checked      Boolean?
-  answers         answers       @relation(fields: [answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_answer")
-  test_attempts   test_attempts @relation(fields: [test_attempt_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_test_attempt")
-}
-
-model visibilities {
+model Visibilities {
   id         Int       @id @default(autoincrement())
   visibility String
-  quizzes    quizzes[]
+  quizzes    Quizzes[]
 }
 
-// Necessary for Next auth
 model Account {
   id                       String  @id @default(cuid())
   userId                   String
@@ -116,10 +131,10 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  modified_at         DateTime?             @default(now())
-  quizzes             quizzes[]
-  quizzes_access_list quizzes_access_list[]
-  test_attempts       test_attempts[]
+  modified_at       DateTime?           @default(now())
+  quizzes           Quizzes[]
+  quizzesAccessList QuizzesAccessList[]
+  testAttempts      TestAttempts[]
 }
 
 model VerificationToken {
