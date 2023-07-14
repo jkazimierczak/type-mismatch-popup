@@ -1,101 +1,76 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol"]
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DATABASE_DIRECT_URL")
+  extensions = [pgcrypto]
 }
 
-model Answers {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  questionId          String                @db.Uuid
-  answer              String
-  isCorrect           Boolean
-  questions           Questions             @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question")
-  testAttemptsAnswers TestAttemptsAnswers[]
+model Quiz {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  visibility Visibility @default(PRIVATE)
+
+  // Relations
+  author   User   @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
+  authorId String
+
+  questions Question[]
 }
 
-model Profiles {
-  id                String              @id @db.Uuid
-  updatedAt         DateTime?           @db.Timestamptz(6)
-  username          String?             @unique
-  avatarUrl         String?
-  firstName         String?
-  lastName          String?
-  quizzes           Quizzes[]
-  quizzesAccessList QuizzesAccessList[]
-  testAttempts      TestAttempts[]
+enum Visibility {
+  PUBLIC
+  PRIVATE
 }
 
-model QuestionTypes {
-  id        Int         @id @default(autoincrement())
-  name      String
-  questions Questions[]
+model Question {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question     String
+  questionType QuestionType
+
+  // Relations
+  quiz   Quiz   @relation(fields: [quizId], references: [id], map: "fk_quiz")
+  quizId String @db.Uuid
+
+  answers Answer[]
 }
 
-model Questions {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quizId         String        @db.Uuid
-  question       String
-  questionTypeId Int
-  answers        Answers[]
-  questionTypes  QuestionTypes @relation(fields: [questionTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_question_type")
-  quizzes        Quizzes       @relation(fields: [quizId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_quiz")
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
 }
 
-model Quizzes {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name              String
-  authorId          String              @db.Uuid
-  visibilityId      Int
-  questions         Questions[]
-  profiles          Profiles            @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_author")
-  visibilities      Visibilities        @relation(fields: [visibilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_visibility")
-  quizzesAccessList QuizzesAccessList[]
-  User              User?               @relation(fields: [userId], references: [id])
-  userId            String?
+model Answer {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  answer    String
+  isCorrect Boolean
+
+  // Relations
+  questions  Question @relation(fields: [questionId], references: [id], map: "fk_question")
+  questionId String   @db.Uuid
 }
 
-model QuizzesAccessList {
-  userId    String    @db.Uuid
-  quizId    String    @db.Uuid
-  expiresOn DateTime? @db.Timestamp(6)
-  quizzes   Quizzes   @relation(fields: [quizId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  profiles  Profiles  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  User      User      @relation(fields: [userId], references: [id])
+model User {
+  // Next-auth fields
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
 
-  @@id([userId, quizId])
+  accounts Account[]
+  sessions Session[]
+
+  // Custom fields
+  modified_at DateTime? @default(now())
+  quizzes     Quiz[]
 }
 
-model TestAttempts {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId              String                @db.Uuid
-  quizId              String                @db.Uuid
-  startedOn           DateTime              @db.Timestamp(6)
-  finishedOn          DateTime?             @db.Timestamp(6)
-  profiles            Profiles              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
-  testAttemptsAnswers TestAttemptsAnswers[]
-  User                User                  @relation(fields: [userId], references: [id])
-}
-
-model TestAttemptsAnswers {
-  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  testAttemptId String       @db.Uuid
-  answerId      String       @db.Uuid
-  isChecked     Boolean?
-  answers       Answers      @relation(fields: [answerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_answer")
-  testAttempts  TestAttempts @relation(fields: [testAttemptId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_test_attempt")
-}
-
-model Visibilities {
-  id         Int       @id @default(autoincrement())
-  visibility String
-  quizzes    Quizzes[]
-}
-
+// Next-Auth models
 model Account {
   id                       String  @id @default(cuid())
   userId                   String
@@ -118,24 +93,11 @@ model Account {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-
-  modified_at       DateTime?           @default(now())
-  quizzes           Quizzes[]
-  quizzesAccessList QuizzesAccessList[]
-  testAttempts      TestAttempts[]
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
 
 model VerificationToken {
