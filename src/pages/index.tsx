@@ -3,13 +3,21 @@ import Head from "next/head";
 import Link from "next/link";
 import { api } from "@/utils/api";
 import { Hero } from "@/components/Hero/Hero";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth";
+import { GetServerSideProps } from "next";
+import { Button } from "@/components/Button";
+import { IoAdd } from "react-icons/io5";
 
 function QuizCard() {
   return <div className="h-20 w-full rounded bg-dark-300 md:max-w-[320px]" />;
 }
 
 export default function Home() {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated";
+
+  if (status === "loading") return <p>Loading</p>;
 
   return (
     <>
@@ -19,14 +27,37 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Hero />
+      {!isAuthenticated && (
+        <>
+          <Hero />
 
-      <p className="mb-3 pt-5 text-center text-xl font-bold text-white">
-        Najnowsze Quizy
-      </p>
-      <p className="mb-5 text-center text-white">
-        Oto Quizy, które utworzyli nasi użytkownicy. Przeglądaj śmiało!
-      </p>
+          <p className="mb-3 pt-5 text-center text-xl font-bold text-white">
+            Najnowsze Quizy
+          </p>
+          <p className="mb-5 text-center text-white">
+            Oto Quizy, które utworzyli nasi użytkownicy. Przeglądaj śmiało!
+          </p>
+        </>
+      )}
+      {isAuthenticated && (
+        <div className="mx-4 mb-4">
+          <div className="mb-3 flex items-center justify-between pt-5">
+            <p className="text-xl font-bold text-white">
+              Witaj, {session?.user?.name}!
+            </p>
+            <Link href={"/quiz/create"} className="text-primary">
+              <span className="flex items-center gap-2">
+                <IoAdd />
+                Stwórz quiz
+              </span>
+            </Link>
+          </div>
+          <p className="text-justify text-dark-300">
+            Aby zacząć swoją przygodę z Quizami wybierz jeden z poniższych
+            quizów lub stwórz swój własny:
+          </p>
+        </div>
+      )}
 
       <div className="mx-5 grid grid-cols-2 gap-2.5 md:mx-8 md:grid-cols-3 lg:mx-auto lg:max-w-screen-lg lg:grid-cols-4">
         <QuizCard />
@@ -37,3 +68,11 @@ export default function Home() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      session: await getServerSession(context.req, context.res, authOptions),
+    },
+  };
+};
