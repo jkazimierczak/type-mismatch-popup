@@ -15,6 +15,10 @@ import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type NewQuizData, newQuizSchema } from "@/models/quiz";
 import { api } from "@/utils/api";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth";
+import { type GetServerSidePropsContext } from "next";
+import { useRouter } from "next/router";
 
 interface InputRadioProps extends ComponentProps<"input"> {
   label: string;
@@ -51,7 +55,12 @@ const defaultValues: NewQuizData = {
 };
 
 export default function CreateQuiz() {
-  const { mutate } = api.quiz.create.useMutation();
+  const router = useRouter();
+  const { mutate } = api.quiz.create.useMutation({
+    onSuccess: (data) => {
+      void router.push(data.publicId);
+    },
+  });
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -142,4 +151,22 @@ export default function CreateQuiz() {
       </form>
     </>
   );
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+      },
+    };
+  }
+
+  return {
+    props: {
+      session,
+    },
+  };
 }
