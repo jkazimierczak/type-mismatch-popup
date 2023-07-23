@@ -21,6 +21,7 @@
     "@trpc/server": "^10.26.0",
     "boring-avatars": "^1.10.1",
     "clsx": "^2.0.0",
+    "nanoid": "^4.0.2",
     "next": "^13.4.2",
     "next-auth": "^4.22.1",
     "react": "18.2.0",

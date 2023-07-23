@@ -12,6 +12,7 @@ datasource db {
 
 model Quiz {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  publicId   String
   name       String
   visibility Visibility @default(PRIVATE)
 

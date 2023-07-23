@@ -13,7 +13,8 @@ import { clsx } from "clsx";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { type NewQuizData, newQuizSchema } from "@/models/quiz";
+import { api } from "@/utils/api";
 
 interface InputRadioProps extends ComponentProps<"input"> {
   label: string;
@@ -44,19 +45,13 @@ const InputRadio = forwardRef<HTMLInputElement, InputRadioProps>(
 );
 InputRadio.displayName = "InputRadio";
 
-const newQuizSchema = z.object({
-  quizName: z.string().min(2, "Nazwa zbyt krótka").max(50, "Nazwa zbyt długa"),
-  visibility: z.string(),
-});
-
-type NewQuizData = z.infer<typeof newQuizSchema>;
-
-const defaultValues = {
+const defaultValues: NewQuizData = {
   quizName: "",
-  visibility: "private",
+  visibility: "PRIVATE",
 };
 
 export default function CreateQuiz() {
+  const { mutate } = api.quiz.create.useMutation();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -76,7 +71,7 @@ export default function CreateQuiz() {
   });
 
   const onSubmit: SubmitHandler<NewQuizData> = (data) => {
-    console.log(data);
+    mutate(data);
   };
 
   return (
@@ -111,7 +106,7 @@ export default function CreateQuiz() {
                 <InputRadio
                   label="Prywatny"
                   {...field}
-                  value="private"
+                  value="PRIVATE"
                   defaultChecked
                 />
               )}
@@ -120,16 +115,16 @@ export default function CreateQuiz() {
               control={control}
               name="visibility"
               render={({ field }) => (
-                <InputRadio label="Publiczny" {...field} value="public" />
+                <InputRadio label="Publiczny" {...field} value="PUBLIC" />
               )}
             />
           </div>
           <p className="my-4">
             {
               {
-                private:
+                PRIVATE:
                   "Dostęp do zawartości będą mieć tylko zaakceptowane przez Ciebie osoby.",
-                public: "Dostęp do zawartości będą mieć wszyscy.",
+                PUBLIC: "Dostęp do zawartości będą mieć wszyscy.",
               }[getValues("visibility")]
             }
           </p>
