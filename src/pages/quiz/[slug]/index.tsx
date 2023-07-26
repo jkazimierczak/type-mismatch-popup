@@ -7,7 +7,8 @@ import { appRouter } from "@/server/api/root";
 import superjson from "superjson";
 import { prisma } from "@/server/db";
 import { getServerAuthSession } from "@/server/auth";
-import { api, getBaseUrl } from "@/utils/api";
+import { api } from "@/utils/api";
+import { createAuthCallback } from "@/utils/callbackUrl";
 
 export default function QuizPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -32,7 +33,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   if (!session) {
     return {
       redirect: {
-        destination: `/api/auth/signin?callbackUrl=${getBaseUrl()}/quiz/${id}`,
+        destination: createAuthCallback(`quiz/${id}`),
       },
     };
   }
