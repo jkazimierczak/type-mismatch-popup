@@ -9,19 +9,57 @@ import { prisma } from "@/server/db";
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/utils/api";
 import { createAuthCallback } from "@/utils/callbackUrl";
+import { IoAdd, IoAlbumsOutline } from "react-icons/io5";
+import { Button } from "@/components/Button";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
 export default function QuizPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const { data } = api.quiz.byId.useQuery({
+  const router = useRouter();
+  const { data: quiz } = api.quiz.byId.useQuery({
     quizId: props.id,
   });
 
+  if (!quiz) return null;
+
   return (
-    <div>
-      <p>{JSON.stringify(props.id, null, 4)}</p>
-      <hr />
-      <p>{JSON.stringify(data, null, 4)}</p>
+    <div className="mx-5 mt-5 text-white">
+      <Head>
+        <title>{quiz.name} | Quizcamp</title>
+      </Head>
+      <div className="rounded-md border-2 border-neutral-700 p-3">
+        <p className="mb-3 text-right">
+          <span className="flex items-center gap-1.5 text-neutral-300">
+            <IoAlbumsOutline size={18} /> {quiz.questions.length || "Brak"}{" "}
+            pytań
+          </span>
+        </p>
+        <h1 className="mb-3 text-xl font-bold">{quiz.name}</h1>
+        <p className="flex items-center gap-2.5 text-neutral-300">
+          <img
+            className="h-8 w-8 rounded-full"
+            src={quiz.author.image ?? undefined}
+            alt={`${quiz.author.name ?? ""} profile image`}
+          />{" "}
+          {quiz.author.name}
+        </p>
+      </div>
+
+      <div className="mb-4 mt-5 text-center text-neutral-400">
+        <p>Są jakieś pytania? Jak zawsze - nie ma.</p>
+        <p>Warto jednak dodać chociaż jedno.</p>
+      </div>
+
+      <Button
+        fullWidth
+        variant="solid"
+        iconRight={<IoAdd />}
+        onClick={() => void router.push(`./${props.id}/edit/questions`)}
+      >
+        Dodaj nowe pytanie
+      </Button>
     </div>
   );
 }

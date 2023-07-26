@@ -27,6 +27,10 @@ export const quizRouter = createTRPCRouter({
     )
     .query(async ({ input, ctx }) => {
       const quiz = await ctx.prisma.quiz.findUnique({
+        include: {
+          author: true,
+          questions: true,
+        },
         where: {
           publicId: input.quizId,
         },
