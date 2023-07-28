@@ -20,7 +20,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <div
         className={`${inter.variable} h-screen bg-dark-900 font-sans text-neutral-400`}
       >
-        <Navbar />
         <Component {...pageProps} />
       </div>
     </SessionProvider>

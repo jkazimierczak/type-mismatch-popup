@@ -56,7 +56,7 @@ export default function QuizPage(
         fullWidth
         variant="solid"
         iconRight={<IoAdd />}
-        onClick={() => void router.push(`./${props.id}/edit/questions`)}
+        onClick={() => void router.push(`./${props.id}/edit`)}
       >
         Dodaj nowe pytanie
       </Button>
