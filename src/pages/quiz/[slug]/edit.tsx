@@ -29,6 +29,7 @@ const defaultValues: NewQuestionData = {
 export default function EditQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const { mutate } = api.question.create.useMutation();
   const { data: quiz } = api.quiz.byId.useQuery({
     quizId: props.id,
   });
@@ -54,7 +55,7 @@ export default function EditQuestions(
   }, [register]);
 
   const onSubmit: SubmitHandler<QuestionData> = (data) => {
-    console.log(data);
+    mutate({ quizId: props.id, data });
   };
 
   if (!quiz) return null;
@@ -66,7 +67,7 @@ export default function EditQuestions(
         title={"Edytor pytań"}
         rightSlot={
           <p className="text-neutral-400">
-            Pytanie 1/{quiz.questions.length + 1}
+            Pytanie 1/{quiz.questions.length ?? 1}
           </p>
         }
       />
