@@ -18,7 +18,7 @@ import { DevTool } from "@hookform/devtools";
 import { makeContentEditable } from "@/utils/makeContentEditable";
 import { Button } from "@/components/Button";
 import { Checkbox } from "@/components/Checkbox/Checkbox";
-import { type NewQuestionData, questionSchema } from "@/models/quiz/question";
+import { type QuestionData, questionSchema } from "@/models/quiz/question";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const defaultValues: NewQuestionData = {
@@ -53,7 +53,7 @@ export default function EditQuestions(
     register("question");
   }, [register]);
 
-  const onSubmit: SubmitHandler<NewQuestionData> = (data) => {
+  const onSubmit: SubmitHandler<QuestionData> = (data) => {
     console.log(data);
   };
 

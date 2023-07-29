@@ -3,13 +3,13 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { newQuizSchema } from "@/models/quiz";
+import { quizSchema, questionSchema } from "@/models/quiz";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const quizRouter = createTRPCRouter({
-  create: protectedProcedure.input(newQuizSchema).mutation(({ input, ctx }) => {
+  create: protectedProcedure.input(quizSchema).mutation(({ input, ctx }) => {
     return ctx.prisma.quiz.create({
       data: {
         publicId: nanoid(12),

@@ -13,7 +13,7 @@ import { clsx } from "clsx";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type NewQuizData, newQuizSchema } from "@/models/quiz";
+import { type QuizData, quizSchema } from "@/models/quiz";
 import { api } from "@/utils/api";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
@@ -49,7 +49,7 @@ const InputRadio = forwardRef<HTMLInputElement, InputRadioProps>(
 );
 InputRadio.displayName = "InputRadio";
 
-const defaultValues: NewQuizData = {
+const defaultValues: QuizData = {
   quizName: "",
   visibility: "PRIVATE",
 };
@@ -73,13 +73,13 @@ export default function CreateQuiz() {
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm<NewQuizData>({
-    resolver: zodResolver(newQuizSchema),
+  } = useForm<QuizData>({
+    resolver: zodResolver(quizSchema),
     mode: "all",
     defaultValues,
   });
 
-  const onSubmit: SubmitHandler<NewQuizData> = (data) => {
+  const onSubmit: SubmitHandler<QuizData> = (data) => {
     mutate(data);
   };
 

@@ -13,4 +13,4 @@ export const questionSchema = z.object({
 });
 
 export type AnswerData = z.infer<typeof answerSchema>;
-export type NewQuestionData = z.infer<typeof questionSchema>;
+export type QuestionData = z.infer<typeof questionSchema>;
