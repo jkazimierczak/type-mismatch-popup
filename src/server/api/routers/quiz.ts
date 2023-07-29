@@ -8,27 +8,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { prisma } from "@/server/db";
-
-export async function getQuizByPublicId(id: string) {
-  const quiz = await prisma.quiz.findUnique({
-    include: {
-      author: true,
-      questions: true,
-    },
-    where: {
-      publicId: id,
-    },
-  });
-
-  if (!quiz) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Quiz not found",
-    });
-  }
-
-  return quiz;
-}
+import { QUIZ_NOT_FOUND } from "@/server/api/errors";
 
 export const quizRouter = createTRPCRouter({
   create: protectedProcedure.input(quizSchema).mutation(({ input, ctx }) => {
@@ -49,7 +29,19 @@ export const quizRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const quiz = await getQuizByPublicId(input.quizId);
+      const quiz = await prisma.quiz.findUnique({
+        include: {
+          author: true,
+          questions: true,
+        },
+        where: {
+          publicId: input.quizId,
+        },
+      });
+
+      if (!quiz) {
+        throw QUIZ_NOT_FOUND;
+      }
 
       console.log(quiz.authorId, ctx.session?.user.id);
 
