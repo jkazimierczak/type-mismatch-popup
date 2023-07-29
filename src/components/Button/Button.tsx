@@ -38,6 +38,7 @@ export function Button({
   return (
     <button
       {...props}
+      type={props.type ?? "button"}
       disabled={disabled}
       className={clsx({
         [style.common]: true,
