@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { questionSchema } from "@/models/quiz";
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
+import { getQuizByPublicId } from "@/server/api/routers/quiz";
 
 export const questionRouter = createTRPCRouter({
   create: protectedProcedure
@@ -12,21 +12,7 @@ export const questionRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const quiz = await ctx.prisma.quiz.findUnique({
-        select: {
-          id: true,
-        },
-        where: {
-          publicId: input.quizId,
-        },
-      });
-
-      if (!quiz) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Quiz not found",
-        });
-      }
+      const quiz = await getQuizByPublicId(input.quizId);
 
       return await ctx.prisma.question.create({
         data: {
