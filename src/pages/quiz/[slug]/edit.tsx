@@ -10,6 +10,7 @@ import { type SubmitHandler } from "react-hook-form";
 import { type QuestionData } from "@/models/quiz/question";
 import { QuestionForm } from "@/features/quizEditor/QuestionForm";
 import { usePagination } from "@/hooks/usePagination";
+import { useEffect, useState } from "react";
 
 const defaultValues: QuestionData = {
   question: "",
@@ -19,12 +20,33 @@ const defaultValues: QuestionData = {
 export default function EditQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const { mutate } = api.question.create.useMutation();
-  const { data: questions } = api.question.getAll.useQuery({
-    quizId: props.id,
+  const utils = api.useContext();
+  const [wasMutated, setWasMutated] = useState(false);
+
+  const { data: questions, isFetching } = api.question.getAll.useQuery(
+    {
+      quizId: props.id,
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
+  const { mutate, isLoading } = api.question.create.useMutation({
+    onSuccess: async () => {
+      await utils.question.getAll.invalidate();
+      setWasMutated(true);
+    },
   });
 
-  const pagination = usePagination(1, questions?.length ?? 0, true);
+  const maxPage = questions?.length ?? 0;
+  const pagination = usePagination(0, maxPage, true); // TODO: Change initial page
+
+  useEffect(() => {
+    if (wasMutated) {
+      pagination.next();
+      setWasMutated(false);
+    }
+  }, [pagination, wasMutated]);
 
   if (!questions) return null;
 
@@ -49,6 +71,7 @@ export default function EditQuestions(
         formValues={questions[pagination.page] ?? defaultValues}
         pagination={pagination}
         onSubmit={onSubmit}
+        isLoading={isFetching || isLoading}
       />
     </>
   );

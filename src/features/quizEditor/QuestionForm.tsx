@@ -13,17 +13,20 @@ import { type QuestionData, questionSchema } from "@/models/quiz";
 import { useEffect } from "react";
 import { DevTool } from "@hookform/devtools";
 import type { usePagination } from "@/hooks/usePagination";
+import { DotPulse } from "@uiball/loaders";
 
 interface QuestionFormProps {
   formValues: QuestionData;
   onSubmit: (data: QuestionData) => void;
   pagination: ReturnType<typeof usePagination>;
+  isLoading: boolean;
 }
 
 export function QuestionForm({
   formValues,
   onSubmit,
   pagination,
+  isLoading,
 }: QuestionFormProps) {
   const {
     control,
@@ -53,6 +56,7 @@ export function QuestionForm({
     register("question");
   }, [register]);
 
+  // Reset form state and load new values
   useEffect(() => {
     reset(formValues);
   }, [formValues, pagination.page, replace, reset]);
@@ -61,7 +65,7 @@ export function QuestionForm({
     if (isDirty) {
       console.log("dirty:", isDirty, dirtyFields);
     }
-  }, [pagination.page]);
+  }, [dirtyFields, isDirty, pagination.page]);
 
   return (
     <>
@@ -163,17 +167,30 @@ export function QuestionForm({
                 Poprzednie
               </Button>
               <Button
-                onClick={pagination.next}
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onClick={
+                  pagination.isOverflow
+                    ? handleSubmit(onSubmit)
+                    : pagination.next
+                }
                 variant="solid"
                 fullWidth
                 disabled={hasTooFewAnswers || !isValid}
                 iconRight={
-                  pagination.isLastPage ? <IoAdd /> : <IoArrowForward />
+                  isLoading ? null : pagination.isOverflow ? (
+                    <IoAdd />
+                  ) : (
+                    <IoArrowForward />
+                  )
                 }
               >
-                {pagination.isLastPage || pagination.isOverflow
-                  ? "Dodaj kolejne"
-                  : "Kolejne"}
+                {isLoading ? (
+                  <DotPulse color="white" />
+                ) : pagination.isOverflow ? (
+                  "Dodaj"
+                ) : (
+                  "Kolejne"
+                )}
               </Button>
             </div>
           </div>
