@@ -37,7 +37,7 @@ export function QuestionForm({
     formState: { errors, isValid, isDirty, dirtyFields },
   } = useForm({
     resolver: zodResolver(questionSchema),
-    mode: "all",
+    mode: "onBlur",
     defaultValues: formValues,
   });
   const {
@@ -91,6 +91,11 @@ export function QuestionForm({
               shouldValidate: true,
             });
           }}
+          onBlur={(event) =>
+            setValue("question", event.currentTarget.textContent ?? "", {
+              shouldValidate: true,
+            })
+          }
         >
           {formValues.question}
         </p>
