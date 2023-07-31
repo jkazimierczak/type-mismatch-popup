@@ -1,4 +1,8 @@
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { questionSchema } from "@/models/quiz";
 import { z } from "zod";
 import { prisma } from "@/server/db";
@@ -6,6 +10,25 @@ import { TRPCError } from "@trpc/server";
 import { QUIZ_NOT_FOUND } from "@/server/api/errors";
 
 export const questionRouter = createTRPCRouter({
+  getAll: publicProcedure
+    .input(
+      z.object({
+        quizId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.question.findMany({
+        where: {
+          quiz: {
+            publicId: input.quizId,
+          },
+        },
+        include: {
+          answers: true,
+        },
+      });
+    }),
+
   create: protectedProcedure
     .input(
       z.object({

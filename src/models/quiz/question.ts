@@ -6,7 +6,7 @@ export const answerSchema = z.object({
 });
 
 export const questionSchema = z.object({
-  question: z.string(),
+  question: z.string().min(1, "Pytanie nie może być puste"),
   answers: z
     .array(answerSchema)
     .min(2, "Musisz dodać conajmniej 2 odpowiedzi."),
