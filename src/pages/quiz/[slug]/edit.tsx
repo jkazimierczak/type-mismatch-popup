@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 
 const defaultValues: QuestionData = {
   question: "",
-  answers: [{ answer: "", isCorrect: true }],
+  answers: [{ answer: "", isCorrect: false }],
 };
 
 export default function EditQuestions(
@@ -39,7 +39,7 @@ export default function EditQuestions(
   });
 
   const maxPage = questions?.length ?? 0;
-  const pagination = usePagination(0, maxPage, true); // TODO: Change initial page
+  const pagination = usePagination(0, maxPage, true);
 
   useEffect(() => {
     if (wasMutated) {
