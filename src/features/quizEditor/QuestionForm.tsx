@@ -59,7 +59,7 @@ export function QuestionForm({
   // Reset form state and load new values
   useEffect(() => {
     reset(formValues);
-  }, [formValues, pagination.page, replace, reset]);
+  }, [formValues, pagination.page, reset]);
 
   useEffect(() => {
     if (isDirty) {
