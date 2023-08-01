@@ -105,12 +105,6 @@ export function QuestionForm({
 
         <div className="mb-3 mt-5 flex justify-between">
           <p className="text-lg font-medium">Odpowiedzi</p>
-          <div className="flex max-w-fit items-center gap-1 rounded bg-neutral-800 px-1.5 py-0.5">
-            <p className="text-sm leading-3">Jednokrotny wybór</p>
-            <span className="mt-px">
-              <IoChevronDown size={12} />
-            </span>
-          </div>
         </div>
 
         <div className="flex flex-grow flex-col justify-between">
