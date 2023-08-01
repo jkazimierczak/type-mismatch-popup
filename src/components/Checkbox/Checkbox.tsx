@@ -8,7 +8,7 @@ import {
 import { IconContext } from "react-icons";
 import { IoCheckbox, IoSquareOutline } from "react-icons/io5";
 
-interface CheckboxProps extends ComponentProps<"input"> {
+export interface CheckboxProps extends ComponentProps<"input"> {
   label?: string;
   iconChecked?: ReactNode;
   iconUnchecked?: ReactNode;
