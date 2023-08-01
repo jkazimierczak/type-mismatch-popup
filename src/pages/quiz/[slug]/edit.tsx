@@ -59,7 +59,7 @@ export default function EditQuestions(
       <SlottedNavbar
         title={"Edytor pytań"}
         rightSlot={
-          <p className="text-neutral-400">
+          <p className="lining-nums tabular-nums text-neutral-400">
             {pagination.isOverflow
               ? `Nowe pytanie`
               : `Pytanie ${pagination.page + 1}/${questions.length ?? 1}`}

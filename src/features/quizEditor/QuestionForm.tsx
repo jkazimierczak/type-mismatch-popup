@@ -79,7 +79,7 @@ export function QuestionForm({
       >
         <p className="mb-3 text-lg font-medium">
           Pytanie{" "}
-          <span className="ml-1.5 text-neutral-400">
+          <span className="ml-1.5 lining-nums tabular-nums text-neutral-400">
             #{pagination.page + 1}
           </span>
         </p>
