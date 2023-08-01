@@ -13,15 +13,18 @@ import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useState } from "react";
 
 const defaultValues: QuestionData = {
-  question: "",
-  answers: [{ answer: "", isCorrect: false }],
+  question: "Question",
+  answers: [
+    { answer: "A", isCorrect: false },
+    { answer: "B", isCorrect: false },
+  ],
 };
 
 export default function EditQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const utils = api.useContext();
-  const [wasMutated, setWasMutated] = useState(false);
+  const [wasCreated, setWasCreated] = useState(false);
 
   const { data: questions, isFetching } = api.question.getAll.useQuery(
     {
@@ -31,28 +34,42 @@ export default function EditQuestions(
       refetchOnWindowFocus: false,
     }
   );
-  const { mutate, isLoading } = api.question.create.useMutation({
-    onSuccess: async () => {
-      await utils.question.getAll.invalidate();
-      setWasMutated(true);
-    },
-  });
+  const { mutate: createQuestion, isLoading } = api.question.create.useMutation(
+    {
+      onSuccess: async () => {
+        await utils.question.getAll.invalidate();
+        setWasCreated(true);
+      },
+    }
+  );
+  const { mutate: deleteQuestion, isLoading: isDeleting } =
+    api.question.delete.useMutation({
+      onSuccess: async () => {
+        await utils.question.getAll.invalidate();
+      },
+    });
 
   const maxPage = questions?.length ?? 0;
   const pagination = usePagination(0, maxPage, true);
 
   useEffect(() => {
-    if (wasMutated) {
+    if (wasCreated) {
       pagination.next();
-      setWasMutated(false);
+      setWasCreated(false);
     }
-  }, [pagination, wasMutated]);
+  }, [pagination, wasCreated]);
 
   if (!questions) return null;
 
   const onSubmit: SubmitHandler<QuestionData> = (data) => {
-    mutate({ quizId: props.id, data });
+    createQuestion({ quizId: props.id, data });
   };
+
+  function onDelete() {
+    if (questions) {
+      deleteQuestion({ questionId: questions[pagination.page]?.id ?? "" });
+    }
+  }
 
   return (
     <>
@@ -72,6 +89,8 @@ export default function EditQuestions(
         pagination={pagination}
         onSubmit={onSubmit}
         isLoading={isFetching || isLoading}
+        isDeleting={isDeleting}
+        onDelete={onDelete}
       />
     </>
   );

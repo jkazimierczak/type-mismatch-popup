@@ -72,4 +72,43 @@ export const questionRouter = createTRPCRouter({
           },
         });
     }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        questionId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const quiz = await ctx.prisma.quiz.findFirst({
+        where: {
+          questions: {
+            some: {
+              id: input.questionId,
+            },
+          },
+        },
+        select: {
+          authorId: true,
+        },
+      });
+
+      if (!quiz)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+        });
+
+      if (quiz.authorId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You don't have permissions to modify this quiz.",
+        });
+      }
+
+      return await ctx.prisma.question.delete({
+        where: {
+          id: input.questionId,
+        },
+      });
+    }),
 });

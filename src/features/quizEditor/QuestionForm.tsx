@@ -1,25 +1,23 @@
 import { makeContentEditable } from "@/utils/makeContentEditable";
-import {
-  IoAdd,
-  IoArrowBack,
-  IoArrowForward,
-  IoChevronDown,
-} from "react-icons/io5";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Checkbox } from "@/components/Checkbox";
+import { IoAdd, IoArrowBack, IoArrowForward } from "react-icons/io5";
+import { useFieldArray, useForm } from "react-hook-form";
+import { RHFCheckbox } from "@/components/Checkbox";
 import { Button } from "@/components/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type QuestionData, questionSchema } from "@/models/quiz";
 import { useEffect } from "react";
 import { DevTool } from "@hookform/devtools";
 import type { usePagination } from "@/hooks/usePagination";
-import { DotPulse } from "@uiball/loaders";
+import { DotPulse, Ring } from "@uiball/loaders";
+import { MdDeleteOutline } from "react-icons/md";
 
 interface QuestionFormProps {
   formValues: QuestionData;
   onSubmit: (data: QuestionData) => void;
   pagination: ReturnType<typeof usePagination>;
   isLoading: boolean;
+  isDeleting: boolean;
+  onDelete: () => void;
 }
 
 export function QuestionForm({
@@ -27,6 +25,8 @@ export function QuestionForm({
   onSubmit,
   pagination,
   isLoading,
+  isDeleting,
+  onDelete,
 }: QuestionFormProps) {
   const {
     control,
@@ -40,11 +40,7 @@ export function QuestionForm({
     mode: "onBlur",
     defaultValues: formValues,
   });
-  const {
-    fields: answers,
-    append,
-    replace,
-  } = useFieldArray({
+  const { fields: answers, append } = useFieldArray({
     control,
     name: "answers",
   });
@@ -77,12 +73,23 @@ export function QuestionForm({
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleSubmit(onSubmit)}
       >
-        <p className="mb-3 text-lg font-medium">
-          Pytanie{" "}
-          <span className="ml-1.5 lining-nums tabular-nums text-neutral-400">
-            #{pagination.page + 1}
-          </span>
-        </p>
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-lg font-medium">
+            Pytanie{" "}
+            <span className="ml-1.5 lining-nums tabular-nums text-neutral-400">
+              #{pagination.page + 1}
+            </span>
+          </p>
+          {!pagination.isOverflow && (
+            <div className="grid grid-cols-1 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">
+              {!isDeleting ? (
+                <MdDeleteOutline onClick={onDelete} />
+              ) : (
+                <Ring color="white" size={16} />
+              )}
+            </div>
+          )}
+        </div>
         <p
           {...makeContentEditable()}
           className="mb-1 w-full rounded-md border-none bg-neutral-800 px-1.5 py-2 text-center"
@@ -112,17 +119,11 @@ export function QuestionForm({
             {answers.map((field, idx) => (
               <div key={field.id} className="mb-2">
                 <div className="mb-1 flex items-center gap-2.5">
-                  <Controller
+                  <RHFCheckbox
                     name={`answers.${idx}.isCorrect`}
                     control={control}
-                    render={({ field }) => (
-                      <Checkbox
-                        iconSize="1.5em"
-                        {...field}
-                        checked={field.value}
-                        value={idx}
-                      />
-                    )}
+                    iconSize="1.5em"
+                    value={idx}
                   />
                   <input
                     type="text"
@@ -184,7 +185,7 @@ export function QuestionForm({
                 }
               >
                 {isLoading ? (
-                  <DotPulse color="white" />
+                  <DotPulse color="white" size={24} />
                 ) : pagination.isOverflow ? (
                   "Dodaj"
                 ) : (
