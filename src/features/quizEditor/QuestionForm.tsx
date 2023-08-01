@@ -8,7 +8,7 @@ import { type QuestionData, questionSchema } from "@/models/quiz";
 import { useEffect } from "react";
 import { DevTool } from "@hookform/devtools";
 import type { usePagination } from "@/hooks/usePagination";
-import { DotPulse, Ring } from "@uiball/loaders";
+import { Ring } from "@uiball/loaders";
 import { MdDeleteOutline } from "react-icons/md";
 
 interface QuestionFormProps {
@@ -146,6 +146,7 @@ export function QuestionForm({
                 onClick={() => {
                   append({ answer: "", isCorrect: false });
                 }}
+                disabled={isLoading}
               >
                 Dodaj odpowiedź
               </Button>
@@ -162,7 +163,7 @@ export function QuestionForm({
               <Button
                 iconLeft={<IoArrowBack />}
                 onClick={pagination.previous}
-                disabled={pagination.isFirstPage}
+                disabled={pagination.isFirstPage || isLoading || isDeleting}
               >
                 Poprzednie
               </Button>
@@ -175,22 +176,14 @@ export function QuestionForm({
                 }
                 variant="solid"
                 fullWidth
-                disabled={hasTooFewAnswers || !isValid}
+                disabled={
+                  hasTooFewAnswers || !isValid || isLoading || isDeleting
+                }
                 iconRight={
-                  isLoading ? null : pagination.isOverflow ? (
-                    <IoAdd />
-                  ) : (
-                    <IoArrowForward />
-                  )
+                  pagination.isOverflow ? <IoAdd /> : <IoArrowForward />
                 }
               >
-                {isLoading ? (
-                  <DotPulse color="white" size={24} />
-                ) : pagination.isOverflow ? (
-                  "Dodaj"
-                ) : (
-                  "Kolejne"
-                )}
+                {pagination.isOverflow ? "Dodaj" : "Kolejne"}
               </Button>
             </div>
           </div>

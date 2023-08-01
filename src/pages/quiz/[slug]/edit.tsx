@@ -11,6 +11,7 @@ import { type QuestionData } from "@/models/quiz/question";
 import { QuestionForm } from "@/features/quizEditor/QuestionForm";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useState } from "react";
+import { Ring } from "@uiball/loaders";
 
 const defaultValues: QuestionData = {
   question: "Question",
@@ -34,14 +35,13 @@ export default function EditQuestions(
       refetchOnWindowFocus: false,
     }
   );
-  const { mutate: createQuestion, isLoading } = api.question.create.useMutation(
-    {
+  const { mutate: createQuestion, isLoading: isCreating } =
+    api.question.create.useMutation({
       onSuccess: async () => {
         await utils.question.getAll.invalidate();
         setWasCreated(true);
       },
-    }
-  );
+    });
   const { mutate: deleteQuestion, isLoading: isDeleting } =
     api.question.delete.useMutation({
       onSuccess: async () => {
@@ -77,9 +77,15 @@ export default function EditQuestions(
         title={"Edytor pytań"}
         rightSlot={
           <p className="lining-nums tabular-nums text-neutral-400">
-            {pagination.isOverflow
-              ? `Nowe pytanie`
-              : `Pytanie ${pagination.page + 1}/${questions.length ?? 1}`}
+            {pagination.isOverflow ? (
+              isCreating ? (
+                <Ring color="white" size={16} />
+              ) : (
+                "Nowe pytanie"
+              )
+            ) : (
+              `Pytanie ${pagination.page + 1}/${questions.length ?? 1}`
+            )}
           </p>
         }
       />
@@ -88,7 +94,7 @@ export default function EditQuestions(
         formValues={questions[pagination.page] ?? defaultValues}
         pagination={pagination}
         onSubmit={onSubmit}
-        isLoading={isFetching || isLoading}
+        isLoading={isFetching || isCreating}
         isDeleting={isDeleting}
         onDelete={onDelete}
       />
