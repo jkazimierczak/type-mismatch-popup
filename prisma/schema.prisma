@@ -51,7 +51,7 @@ model Answer {
   isCorrect Boolean
 
   // Relations
-  questions  Question @relation(fields: [questionId], references: [id], map: "fk_question")
+  questions  Question @relation(fields: [questionId], references: [id], map: "fk_question", onDelete: Cascade)
   questionId String   @db.Uuid
 }
 
