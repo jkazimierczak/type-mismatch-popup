@@ -92,8 +92,10 @@ export default function EditQuestions(
 
   // Reset form state and load new values
   useEffect(() => {
-    reset(defaultValues);
-  }, [pagination.page, reset]);
+    if (questions) {
+      reset(questions[pagination.page] ?? defaultValues);
+    }
+  }, [reset, questions, pagination.page]);
 
   if (!questions) return null;
 
