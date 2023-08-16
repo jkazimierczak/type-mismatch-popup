@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import { Ring } from "@uiball/loaders";
 import { DevTool } from "@hookform/devtools";
 import { MdDeleteOutline } from "react-icons/md";
-import { makeContentEditable } from "@/utils/makeContentEditable";
 import { RHFCheckbox } from "@/components/Checkbox";
 import { Button } from "@/components/Button";
 import { IoAdd, IoArrowBack, IoArrowForward } from "react-icons/io5";
@@ -84,11 +83,6 @@ export default function EditQuestions(
     name: "answers",
   });
   const hasTooFewAnswers = answers.length < 2;
-
-  // Register contentEditable field
-  useEffect(() => {
-    register("question");
-  }, [register]);
 
   // Reset form state and load new values
   useEffect(() => {
@@ -179,23 +173,11 @@ export default function EditQuestions(
             </div>
           )}
         </div>
-        {/* TODO: Make field dirty after content changes */}
-        <p
-          {...makeContentEditable()}
-          className="mb-1 w-full rounded-md border-none bg-neutral-800 px-1.5 py-2 text-center"
-          onInput={(event) => {
-            setValue("question", event.currentTarget.textContent ?? "", {
-              shouldValidate: true,
-            });
-          }}
-          onBlur={(event) =>
-            setValue("question", event.currentTarget.textContent ?? "", {
-              shouldValidate: true,
-            })
-          }
-        >
-          {defaultValues.question}
-        </p>
+        <input
+          type="text"
+          {...register(`question`)}
+          className="w-full rounded border-none bg-neutral-800"
+        />
         {errors.question && (
           <p className="text-red-500">{errors.question?.message}</p>
         )}
