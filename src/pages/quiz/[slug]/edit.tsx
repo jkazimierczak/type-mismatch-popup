@@ -7,7 +7,12 @@ import { createAuthCallback } from "@/utils/callbackUrl";
 import { SlottedNavbar } from "@/components/Navbar/SlottedNavbar";
 import { api } from "@/utils/api";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { type QuestionData, questionSchema } from "@/models/quiz/question";
+import {
+  type QuestionData,
+  questionCreateSchema,
+  type QuestionEditData,
+  type AnswerReadData,
+} from "@/models/quiz/question";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useState } from "react";
 import { Ring } from "@uiball/loaders";
@@ -47,6 +52,7 @@ export default function EditQuestions(
         setWasCreated(true);
       },
     });
+  const { mutate: updateQuestion } = api.question.update.useMutation();
   const { mutate: deleteQuestion, isLoading: isDeleting } =
     api.question.delete.useMutation({
       onSuccess: async () => {
@@ -58,6 +64,8 @@ export default function EditQuestions(
   const pagination = usePagination(0, maxPage, true);
   const isNewQuestion = pagination.isOverflow;
 
+  const currentQuestion = questions && questions[pagination.page];
+
   useEffect(() => {
     if (wasCreated) {
       pagination.next();
@@ -68,17 +76,21 @@ export default function EditQuestions(
   const {
     control,
     register,
-    setValue,
     handleSubmit,
     reset,
     getValues,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isValid, isDirty, dirtyFields },
   } = useForm({
-    resolver: zodResolver(questionSchema),
+    resolver: zodResolver(questionCreateSchema),
     mode: "onBlur",
     defaultValues,
   });
-  const { fields: answers, append } = useFieldArray({
+  // TODO: Make naming consistent
+  const {
+    fields: answers,
+    append,
+    remove: removeAnswerField,
+  } = useFieldArray({
     control,
     name: "answers",
   });
@@ -87,7 +99,7 @@ export default function EditQuestions(
   // Reset form state and load new values
   useEffect(() => {
     if (questions) {
-      reset(questions[pagination.page] ?? defaultValues);
+      reset(currentQuestion ?? defaultValues);
     }
   }, [reset, questions, pagination.page]);
 
@@ -99,9 +111,9 @@ export default function EditQuestions(
     createQuestion({ quizId: props.id, data });
   };
 
-  function onDelete() {
+  function handleQuestionDelete() {
     if (questions) {
-      deleteQuestion({ questionId: questions[pagination.page]?.id ?? "" });
+      deleteQuestion({ questionId: currentQuestion?.id ?? "" });
     }
   }
 
@@ -109,19 +121,71 @@ export default function EditQuestions(
     append({ answer: "", isCorrect: false });
   }
 
+  function getDirtyData() {
+    if (!questions) return;
+
+    const values = getValues();
+    const newQuestion: QuestionEditData = {};
+
+    if (dirtyFields.question) {
+      newQuestion.question = values.question;
+    }
+
+    if (dirtyFields.answers) {
+      newQuestion.answers = [];
+
+      for (let i = 0; i < dirtyFields.answers.length; i++) {
+        const item = values.answers[i];
+        const itemDirtiness = dirtyFields.answers[i];
+
+        if (!item || !itemDirtiness) continue;
+
+        const isModified = Object.values(itemDirtiness).some((v) => v === true);
+        if (isModified) {
+          newQuestion.answers.push({
+            ...currentQuestion?.answers[i],
+            ...item,
+          });
+        }
+      }
+    }
+
+    return newQuestion;
+  }
+
+  const isContentModified = isDirty && !isNewQuestion;
+
+  function handleModifiedQuestion() {
+    if (!currentQuestion) return;
+
+    const dirtyData = getDirtyData();
+    if (!dirtyData) return;
+
+    const updateData = {
+      id: currentQuestion.id,
+      data: dirtyData,
+    };
+
+    // console.warn("question:update", updateData);
+    // console.log("dirty", dirtyFields);
+    updateQuestion(updateData);
+  }
+
   const handleNavigationForward = () => {
-    // Question modified
-    if (isDirty && !isNewQuestion) {
-      // TODO: Add logic
-      console.warn("TBD question:modified");
-      pagination.next();
-      return;
+    if (isContentModified) {
+      return handleModifiedQuestion();
     }
 
     isNewQuestion ? onSubmit(getValues()) : pagination.next();
   };
 
-  const handleNavigationBackward = pagination.previous;
+  const handleNavigationBackward = () => {
+    if (isContentModified) {
+      return handleModifiedQuestion();
+    }
+
+    pagination.previous();
+  };
 
   return (
     <>
@@ -166,7 +230,7 @@ export default function EditQuestions(
           {!isNewQuestion && (
             <div className="grid grid-cols-1 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">
               {!isDeleting ? (
-                <MdDeleteOutline onClick={onDelete} />
+                <MdDeleteOutline onClick={handleQuestionDelete} />
               ) : (
                 <Ring color="white" size={16} />
               )}

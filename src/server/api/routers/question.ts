@@ -3,7 +3,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { questionSchema } from "@/models/quiz";
+import { questionCreateSchema, questionEditSchema } from "@/models/quiz";
 import { z } from "zod";
 import { prisma } from "@/server/db";
 import { TRPCError } from "@trpc/server";
@@ -33,7 +33,7 @@ export const questionRouter = createTRPCRouter({
     .input(
       z.object({
         quizId: z.string(),
-        data: questionSchema,
+        data: questionCreateSchema,
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -71,6 +71,72 @@ export const questionRouter = createTRPCRouter({
             },
           },
         });
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        data: questionEditSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const question = await ctx.prisma.question.findUniqueOrThrow({
+        where: {
+          id: input.id,
+        },
+        include: {
+          quiz: true,
+          answers: true,
+        },
+      });
+
+      if (question.quiz.authorId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You don't have permissions to modify this quiz.",
+        });
+      }
+
+      // TODO:
+      //  - [ ] Update question
+      //  - [ ] Update existing answers
+      //  - [ ] Create new answers
+      //  - [ ] Delete questions
+      const { data } = input;
+      console.log(question, data);
+
+      const upsertData = data.answers
+        ?.filter((answer) => answer.id)
+        .map((answer) => ({
+          update: { answer: answer.answer, isCorrect: answer.isCorrect },
+          create: { answer: answer.answer, isCorrect: answer.isCorrect },
+          where: { id: answer.id },
+        }));
+      const createData = data.answers?.filter((answer) => !answer.id);
+      console.log(data.question);
+      console.log("upsert", upsertData);
+      console.log("create", createData);
+
+      // ctx.prisma.$transaction()
+
+      await ctx.prisma.question.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          question: data.question,
+          answers: {
+            upsert: upsertData,
+            createMany: { data: createData ?? [] },
+          },
+        },
+      });
+      // await ctx.prisma.answer.deleteMany({
+      //   where: {
+      //     id: { in: []}
+      //   }
+      // })
     }),
 
   delete: protectedProcedure
