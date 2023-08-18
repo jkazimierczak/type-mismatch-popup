@@ -22,6 +22,7 @@ import { RHFCheckbox } from "@/components/Checkbox";
 import { Button } from "@/components/Button";
 import { IoAdd, IoArrowBack, IoArrowForward } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MultipleChoice } from "@/components/quiz/answer";
 
 const defaultValues: QuestionData = {
   question: "Question",
@@ -268,30 +269,12 @@ export default function EditQuestions(
         <div className="flex flex-grow flex-col justify-between">
           <div>
             {answers.map((field, idx) => (
-              <div key={field.rhf_id} className="mb-2">
-                <div className="mb-1 flex items-center gap-2.5">
-                  <RHFCheckbox
-                    name={`answers.${idx}.isCorrect`}
-                    control={control}
-                    iconSize="1.5em"
-                    value={idx}
-                  />
-                  <input
-                    type="text"
-                    {...register(`answers.${idx}.answer`)}
-                    className="w-full rounded border-none bg-neutral-800"
-                  />
-                  <MdDeleteOutline
-                    size={24}
-                    onClick={() => handleAnswerDelete(idx)}
-                  />
-                </div>
-                {errors.answers && (
-                  <p className="ml-[34px] text-red-500">
-                    {errors.answers[idx]?.answer?.message}
-                  </p>
-                )}
-              </div>
+              <MultipleChoice
+                key={field.rhf_id}
+                control={control}
+                answerIdx={idx}
+                onDelete={() => handleAnswerDelete(idx)}
+              />
             ))}
 
             <div className="mb-3 ml-[34px]">

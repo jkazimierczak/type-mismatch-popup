@@ -1,25 +1,49 @@
-import { makeContentEditable } from "@/utils/makeContentEditable";
-import { type ComponentProps, forwardRef } from "react";
-import { Checkbox } from "@/components/Checkbox";
+import { RHFCheckbox } from "@/components/Checkbox";
+import { type Control, useController } from "react-hook-form";
+import { type QuestionData } from "@/validators/question";
+import { MdDeleteOutline } from "react-icons/md";
 
-interface AnswerProps extends ComponentProps<"input"> {
+interface MultipleChoiceProps {
   isEditable?: boolean;
-  text: string;
+  answerIdx: number;
+  control: Control<QuestionData>;
+  onDelete?: () => void;
 }
 
-export const MultipleChoice = forwardRef<HTMLInputElement, AnswerProps>(
-  ({ isEditable, text, ...props }, forwardedRef) => {
-    return (
-      <div className="mb-2 flex items-center gap-2.5">
-        <Checkbox iconSize={"1.5em"} {...props} ref={forwardedRef} />
-        <p
-          {...(isEditable ? makeContentEditable() : {})}
-          className="w-full rounded bg-neutral-800 px-4 py-2.5"
-        >
-          {text}
-        </p>
+export function MultipleChoice({
+  answerIdx,
+  control,
+  onDelete,
+}: MultipleChoiceProps) {
+  const {
+    field: answer,
+    formState: { errors },
+  } = useController({
+    control,
+    name: `answers.${answerIdx}.answer`,
+  });
+
+  return (
+    <div className="mb-2">
+      <div className="mb-1 flex items-center gap-2.5">
+        <RHFCheckbox
+          name={`answers.${answerIdx}.isCorrect`}
+          control={control}
+          iconSize="1.5em"
+          value={answerIdx}
+        />
+        <input
+          type="text"
+          className="w-full rounded border-none bg-neutral-800"
+          {...answer}
+        />
+        <MdDeleteOutline size={24} onClick={onDelete} />
       </div>
-    );
-  }
-);
-MultipleChoice.displayName = "MultipleChoice";
+      {errors.answers && (
+        <p className="ml-[34px] text-red-500">
+          {errors.answers[answerIdx]?.answer?.message}
+        </p>
+      )}
+    </div>
+  );
+}
