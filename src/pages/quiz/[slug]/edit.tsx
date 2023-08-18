@@ -187,7 +187,6 @@ export default function EditQuestions(
       data: { ...dirtyData, answersToDelete: deletedAnswers },
     };
 
-    // TODO: Fix typing
     updateQuestion(updateData);
   }
 
