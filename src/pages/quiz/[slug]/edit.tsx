@@ -110,7 +110,7 @@ export default function EditQuestions(
       reset(currentQuestion ?? defaultValues);
       setDeletedAnswers([]);
     }
-  }, [reset, questions, pagination.page]);
+  }, [reset, questions, pagination.page, currentQuestion]);
 
   if (!questions) return null;
 
