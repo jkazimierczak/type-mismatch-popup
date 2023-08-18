@@ -98,13 +98,7 @@ export const questionRouter = createTRPCRouter({
         });
       }
 
-      // TODO:
-      //  - [ ] Update question
-      //  - [ ] Update existing answers
-      //  - [ ] Create new answers
-      //  - [ ] Delete questions
       const { data } = input;
-      console.log(question, data);
 
       const upsertData = data.answers
         ?.filter((answer) => answer.id)
@@ -114,11 +108,6 @@ export const questionRouter = createTRPCRouter({
           where: { id: answer.id },
         }));
       const createData = data.answers?.filter((answer) => !answer.id);
-      console.log(data.question);
-      console.log("upsert", upsertData);
-      console.log("create", createData);
-
-      // ctx.prisma.$transaction()
 
       await ctx.prisma.question.update({
         where: {
@@ -132,11 +121,12 @@ export const questionRouter = createTRPCRouter({
           },
         },
       });
-      // await ctx.prisma.answer.deleteMany({
-      //   where: {
-      //     id: { in: []}
-      //   }
-      // })
+
+      await ctx.prisma.answer.deleteMany({
+        where: {
+          id: { in: data.answersToDelete },
+        },
+      });
     }),
 
   delete: protectedProcedure

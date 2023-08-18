@@ -24,6 +24,7 @@ export const questionEditSchema = z
         id: z.string().optional(),
       })
     ),
+    answersToDelete: z.string().array(),
   })
   .partial();
 

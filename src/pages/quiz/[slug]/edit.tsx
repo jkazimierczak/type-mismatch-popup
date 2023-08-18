@@ -36,6 +36,9 @@ export default function EditQuestions(
 ) {
   const utils = api.useContext();
   const [wasCreated, setWasCreated] = useState(false);
+  const [deletedAnswers, setDeletedAnswers] = useState<AnswerReadData["id"][]>(
+    []
+  );
 
   const { data: questions, isFetching } = api.question.getAll.useQuery(
     {
@@ -52,7 +55,11 @@ export default function EditQuestions(
         setWasCreated(true);
       },
     });
-  const { mutate: updateQuestion } = api.question.update.useMutation();
+  const { mutate: updateQuestion } = api.question.update.useMutation({
+    onSuccess: async () => {
+      await utils.question.getAll.invalidate();
+    },
+  });
   const { mutate: deleteQuestion, isLoading: isDeleting } =
     api.question.delete.useMutation({
       onSuccess: async () => {
@@ -93,6 +100,7 @@ export default function EditQuestions(
   } = useFieldArray({
     control,
     name: "answers",
+    keyName: "rhf_id",
   });
   const hasTooFewAnswers = answers.length < 2;
 
@@ -100,6 +108,7 @@ export default function EditQuestions(
   useEffect(() => {
     if (questions) {
       reset(currentQuestion ?? defaultValues);
+      setDeletedAnswers([]);
     }
   }, [reset, questions, pagination.page]);
 
@@ -115,6 +124,18 @@ export default function EditQuestions(
     if (questions) {
       deleteQuestion({ questionId: currentQuestion?.id ?? "" });
     }
+  }
+
+  function handleAnswerDelete(idx: number) {
+    if (!currentQuestion) return;
+
+    const answer = answers[idx];
+    if (!answer) return;
+
+    if ("id" in answer) {
+      setDeletedAnswers([...deletedAnswers, answer.id as string]);
+    }
+    removeAnswerField(idx);
   }
 
   function addNewAnswerField() {
@@ -163,29 +184,30 @@ export default function EditQuestions(
 
     const updateData = {
       id: currentQuestion.id,
-      data: dirtyData,
+      data: { ...dirtyData, answersToDelete: deletedAnswers },
     };
 
-    // console.warn("question:update", updateData);
-    // console.log("dirty", dirtyFields);
+    // TODO: Fix typing
     updateQuestion(updateData);
   }
 
-  const handleNavigationForward = () => {
+  function handleNavigationForward() {
     if (isContentModified) {
-      return handleModifiedQuestion();
+      handleModifiedQuestion();
+      pagination.next();
     }
 
     isNewQuestion ? onSubmit(getValues()) : pagination.next();
-  };
+  }
 
-  const handleNavigationBackward = () => {
+  function handleNavigationBackward() {
     if (isContentModified) {
-      return handleModifiedQuestion();
+      handleModifiedQuestion();
+      pagination.previous();
     }
 
     pagination.previous();
-  };
+  }
 
   return (
     <>
@@ -207,12 +229,6 @@ export default function EditQuestions(
       />
 
       <DevTool control={control} />
-
-      <pre className="fixed left-0 top-0 z-10 bg-black p-2 text-sm">
-        Dirty: {String(isDirty)}
-        <br />
-        {/*{JSON.stringify(getValues(), null, 2)}*/}
-      </pre>
 
       <form
         className="mx-4 mt-5 flex flex-col"
@@ -253,7 +269,7 @@ export default function EditQuestions(
         <div className="flex flex-grow flex-col justify-between">
           <div>
             {answers.map((field, idx) => (
-              <div key={field.id} className="mb-2">
+              <div key={field.rhf_id} className="mb-2">
                 <div className="mb-1 flex items-center gap-2.5">
                   <RHFCheckbox
                     name={`answers.${idx}.isCorrect`}
@@ -265,6 +281,10 @@ export default function EditQuestions(
                     type="text"
                     {...register(`answers.${idx}.answer`)}
                     className="w-full rounded border-none bg-neutral-800"
+                  />
+                  <MdDeleteOutline
+                    size={24}
+                    onClick={() => handleAnswerDelete(idx)}
                   />
                 </div>
                 {errors.answers && (
