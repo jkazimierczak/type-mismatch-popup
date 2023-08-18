@@ -13,7 +13,7 @@ import { clsx } from "clsx";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type QuizData, quizSchema } from "@/models/quiz";
+import { type QuizData, quizSchema } from "src/validators";
 import { api } from "@/utils/api";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";

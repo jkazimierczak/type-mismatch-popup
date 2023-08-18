@@ -3,7 +3,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { quizSchema } from "@/models/quiz";
+import { quizSchema } from "src/validators";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";

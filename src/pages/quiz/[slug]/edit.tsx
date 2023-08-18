@@ -12,7 +12,7 @@ import {
   questionCreateSchema,
   type QuestionEditData,
   type AnswerReadData,
-} from "@/models/quiz/question";
+} from "@/validators/question";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useState } from "react";
 import { Ring } from "@uiball/loaders";
