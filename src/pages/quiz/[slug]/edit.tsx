@@ -18,9 +18,14 @@ import { useEffect, useState } from "react";
 import { Ring } from "@uiball/loaders";
 import { DevTool } from "@hookform/devtools";
 import { MdDeleteOutline } from "react-icons/md";
-import { RHFCheckbox } from "@/components/Checkbox";
 import { Button } from "@/components/Button";
-import { IoAdd, IoArrowBack, IoArrowForward } from "react-icons/io5";
+import {
+  IoAdd,
+  IoArrowBack,
+  IoArrowForward,
+  IoRefresh,
+  IoSave,
+} from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MultipleChoice } from "@/components/quiz/answer";
 
@@ -125,6 +130,14 @@ export default function EditQuestions(
     createQuestion({ quizId: props.id, data });
   };
 
+  function handleQuestionReset() {
+    reset(currentQuestion);
+  }
+
+  function handleQuestionSave() {
+    handleModifiedQuestion();
+  }
+
   function handleQuestionDelete() {
     if (questions) {
       deleteQuestion({ questionId: currentQuestion?.id ?? "" });
@@ -215,20 +228,10 @@ export default function EditQuestions(
   }
 
   function handleNavigationForward() {
-    if (isContentModified) {
-      handleModifiedQuestion();
-      pagination.next();
-    }
-
     isNewQuestion ? onSubmit(getValues()) : pagination.next();
   }
 
   function handleNavigationBackward() {
-    if (isContentModified) {
-      handleModifiedQuestion();
-      pagination.previous();
-    }
-
     pagination.previous();
   }
 
@@ -326,26 +329,42 @@ export default function EditQuestions(
                 Musisz dodać conajmniej 2 odpowiedzi.
               </p>
             )}
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                iconLeft={<IoArrowBack />}
-                onClick={handleNavigationBackward}
-                disabled={pagination.isFirstPage || isLoading || isDeleting}
-              >
-                Poprzednie
-              </Button>
-              <Button
-                onClick={handleNavigationForward}
-                variant="solid"
-                fullWidth
-                disabled={
-                  hasTooFewAnswers || !isValid || isLoading || isDeleting
-                }
-                iconRight={isNewQuestion ? <IoAdd /> : <IoArrowForward />}
-              >
-                {isNewQuestion ? "Dodaj" : "Kolejne"}
-              </Button>
-            </div>
+            {!isContentModified ? (
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  iconLeft={<IoArrowBack />}
+                  onClick={handleNavigationBackward}
+                  disabled={pagination.isFirstPage || isLoading || isDeleting}
+                >
+                  Poprzednie
+                </Button>
+                <Button
+                  onClick={handleNavigationForward}
+                  variant="solid"
+                  fullWidth
+                  disabled={
+                    hasTooFewAnswers || !isValid || isLoading || isDeleting
+                  }
+                  iconRight={isNewQuestion ? <IoAdd /> : <IoArrowForward />}
+                >
+                  {isNewQuestion ? "Dodaj" : "Kolejne"}
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Button iconLeft={<IoRefresh />} onClick={handleQuestionReset}>
+                  Cofnij
+                </Button>
+                <Button
+                  onClick={handleQuestionSave}
+                  variant="solid"
+                  fullWidth
+                  iconRight={<IoSave />}
+                >
+                  Zapisz
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </form>
