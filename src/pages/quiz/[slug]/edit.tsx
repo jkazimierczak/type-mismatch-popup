@@ -11,7 +11,6 @@ import {
   type QuestionData,
   questionCreateSchema,
   type QuestionEditData,
-  type AnswerReadData,
 } from "@/validators/question";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useState } from "react";
@@ -59,11 +58,12 @@ export default function EditQuestions(
         setWasCreated(true);
       },
     });
-  const { mutate: updateQuestion } = api.question.update.useMutation({
-    onSuccess: async () => {
-      await utils.question.getAll.invalidate();
-    },
-  });
+  const { mutate: updateQuestion, isLoading: isUpdating } =
+    api.question.update.useMutation({
+      onSuccess: async () => {
+        await utils.question.getAll.invalidate();
+      },
+    });
   const { mutate: deleteQuestion, isLoading: isDeleting } =
     api.question.delete.useMutation({
       onSuccess: async () => {
@@ -122,7 +122,7 @@ export default function EditQuestions(
 
   if (!questions) return null;
 
-  const isLoading = isFetching || isCreating;
+  const isLoading = isFetching || isCreating || isUpdating;
 
   const onSubmit: SubmitHandler<QuestionData> = (data) => {
     createQuestion({ quizId: props.id, data });
@@ -235,6 +235,7 @@ export default function EditQuestions(
     <>
       <SlottedNavbar
         title={"Edytor pytań"}
+        disableBack={isLoading}
         rightSlot={
           <p className="lining-nums tabular-nums text-neutral-400">
             {isNewQuestion ? (
@@ -312,7 +313,7 @@ export default function EditQuestions(
                 iconLeft={<IoAdd />}
                 fullWidth
                 onClick={addNewAnswerField}
-                disabled={isLoading || isCreating}
+                disabled={isLoading || isCreating || isDeleting}
               >
                 Dodaj odpowiedź
               </Button>
@@ -348,13 +349,18 @@ export default function EditQuestions(
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
-                <Button iconLeft={<IoRefresh />} onClick={handleQuestionReset}>
+                <Button
+                  iconLeft={<IoRefresh />}
+                  onClick={handleQuestionReset}
+                  disabled={isLoading}
+                >
                   Cofnij
                 </Button>
                 <Button
                   onClick={handleQuestionSave}
                   variant="solid"
                   fullWidth
+                  disabled={isLoading}
                   iconRight={<IoSave />}
                 >
                   Zapisz
