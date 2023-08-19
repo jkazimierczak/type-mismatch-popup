@@ -145,8 +145,6 @@ export default function EditQuestions(
   }
 
   function handleAnswerDelete(idx: number) {
-    if (!currentQuestion) return;
-
     const answer = answers[idx];
     if (!answer) return;
 
