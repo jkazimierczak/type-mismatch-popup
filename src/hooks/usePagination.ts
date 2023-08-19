@@ -35,6 +35,7 @@ export function usePagination(
 
   return {
     page,
+    setPage,
     isFirstPage,
     isLastPage,
     isOverflow,

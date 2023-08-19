@@ -96,7 +96,8 @@ export default function EditQuestions(
   // TODO: Make naming consistent
   const {
     fields: answers,
-    append,
+    append: appendAnswerField,
+    move: moveAnswerField,
     remove: removeAnswerField,
   } = useFieldArray({
     control,
@@ -105,11 +106,14 @@ export default function EditQuestions(
   });
   const hasTooFewAnswers = answers.length < 2;
 
+  const focusedAnswer = usePagination(0, answers.length);
+
   // Reset form state and load new values
   useEffect(() => {
     if (questions) {
       reset(currentQuestion ?? defaultValues);
       setDeletedAnswers([]);
+      focusedAnswer.setPage(0);
     }
   }, [reset, questions, pagination.page, currentQuestion]);
 
@@ -137,10 +141,29 @@ export default function EditQuestions(
       setDeletedAnswers([...deletedAnswers, answer.id as string]);
     }
     removeAnswerField(idx);
+    focusedAnswer.setPage(focusedAnswer.page - 1);
+  }
+
+  function handleAnswerMoveUp(idx: number) {
+    if (focusedAnswer.isFirstPage) return;
+
+    moveAnswerField(idx, idx - 1);
+    focusedAnswer.previous();
+  }
+
+  function handleAnswerMoveDown(idx: number) {
+    if (focusedAnswer.isLastPage) return;
+
+    moveAnswerField(idx, idx + 1);
+    focusedAnswer.next();
+  }
+
+  function handleAnswerAppend(idx: number) {
+    appendAnswerField({ answer: "", isCorrect: false });
   }
 
   function addNewAnswerField() {
-    append({ answer: "", isCorrect: false });
+    appendAnswerField({ answer: "", isCorrect: false });
   }
 
   function getDirtyData() {
@@ -274,6 +297,13 @@ export default function EditQuestions(
                 control={control}
                 answerIdx={idx}
                 onDelete={() => handleAnswerDelete(idx)}
+                onMoveUp={() => handleAnswerMoveUp(idx)}
+                onMoveDown={() => handleAnswerMoveDown(idx)}
+                onAppend={() => handleAnswerAppend(idx)}
+                disableMoveUp={focusedAnswer.isFirstPage}
+                disableMoveDown={focusedAnswer.isLastPage}
+                isFocused={focusedAnswer.page === idx}
+                onFocus={() => focusedAnswer.setPage(idx)}
               />
             ))}
 
