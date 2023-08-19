@@ -279,6 +279,7 @@ export default function EditQuestions(
         <input
           type="text"
           {...register(`question`)}
+          autoComplete="off"
           className="w-full rounded border-none bg-neutral-800"
         />
         {errors.question && (

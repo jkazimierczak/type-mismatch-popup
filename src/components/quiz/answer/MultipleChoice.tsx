@@ -55,6 +55,7 @@ export const MultipleChoice = forwardRef<HTMLDivElement, MultipleChoiceProps>(
           <input
             {...answer}
             type="text"
+            autoComplete="off"
             className="w-full rounded border-none bg-neutral-800"
           />
         </div>
