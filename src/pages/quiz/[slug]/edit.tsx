@@ -42,9 +42,7 @@ export default function EditQuestions(
 ) {
   const utils = api.useContext();
   const [wasCreated, setWasCreated] = useState(false);
-  const [deletedAnswers, setDeletedAnswers] = useState<AnswerReadData["id"][]>(
-    []
-  );
+  const [deletedAnswers, setDeletedAnswers] = useState<string[]>([]);
 
   const { data: questions, isFetching } = api.question.getAll.useQuery(
     {
