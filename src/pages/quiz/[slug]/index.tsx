@@ -12,17 +12,16 @@ import {
   IoGolf,
   IoPencil,
 } from "react-icons/io5";
-import { Button } from "@/components/Button";
-import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
 import Head from "next/head";
 import { ssrInit } from "@/utils/ssr";
 import { SlottedNavbar } from "@/components/Navbar/SlottedNavbar";
 import { declensionQuestions } from "@/utils/declension";
+import Link from "next/link";
 
 export default function QuizPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const router = useRouter();
   const { data: quiz } = api.quiz.byId.useQuery({
     quizId: props.id,
   });
@@ -65,13 +64,15 @@ export default function QuizPage(
               <p>Warto jednak dodać chociaż jedno.</p>
             </div>
 
-            <Button
-              fullWidth
-              variant="solid"
-              iconRight={<IoAdd />}
-              onClick={() => void router.push(`./${props.id}/edit`)}
-            >
-              {quizIsEmpty ? "Dodaj nowe pytanie" : "Edytuj pytania"}
+            <Button size="fullWidth" asChild>
+              <Link href={`./${props.id}/edit`}>
+                {quizIsEmpty ? (
+                  <IoAdd className="mr-2" />
+                ) : (
+                  <IoPencil className="mr-2" />
+                )}
+                {quizIsEmpty ? "Dodaj nowe pytanie" : "Edytuj pytania"}
+              </Link>
             </Button>
           </>
         )}
@@ -79,34 +80,29 @@ export default function QuizPage(
         {!quizIsEmpty && (
           <>
             <div className="mb-5 grid gap-2">
-              <Button
-                variant="solid"
-                fullWidth
-                iconLeft={<IoBook />}
-                onClick={() => void router.push(`./${props.id}/learn`)}
-              >
-                Tryb nauki
+              <Button size="fullWidth" asChild>
+                <Link href={`./${props.id}/learn`}>
+                  <IoBook className="mr-2" /> Tryb nauki
+                </Link>
               </Button>
-              <Button
-                variant="solid"
-                fullWidth
-                iconLeft={<IoGolf />}
-                onClick={() => void router.push(`./${props.id}/test`)}
-                disabled
-              >
-                Tryb testu
+              <Button size="fullWidth" disabled asChild>
+                <Link href={`./${props.id}/test`}>
+                  <IoGolf className="mr-2" /> Tryb testu
+                </Link>
               </Button>
             </div>
 
             <hr className="mb-2 border-dark-400" />
 
-            <Button
-              fullWidth
-              variant="solid"
-              iconLeft={quizIsEmpty ? <IoAdd /> : <IoPencil />}
-              onClick={() => void router.push(`./${props.id}/edit`)}
-            >
-              {quizIsEmpty ? "Dodaj nowe pytanie" : "Edytuj pytania"}
+            <Button size="fullWidth" asChild>
+              <Link href={`./${props.id}/edit`}>
+                {quizIsEmpty ? (
+                  <IoAdd className="mr-2" />
+                ) : (
+                  <IoPencil className="mr-2" />
+                )}
+                {quizIsEmpty ? "Dodaj nowe pytanie" : "Edytuj pytania"}
+              </Link>
             </Button>
           </>
         )}

@@ -6,8 +6,8 @@ import { Hero } from "@/components/Hero/Hero";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
 import { GetServerSideProps } from "next";
-import { Button } from "@/components/Button";
 import { IoAdd } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
 
 function QuizCard() {
   return <div className="h-20 w-full rounded bg-dark-300 md:max-w-[320px]" />;
@@ -45,12 +45,17 @@ export default function Home() {
             <p className="text-xl font-bold text-white">
               Witaj, {session?.user?.name}!
             </p>
-            <Link href={"/quiz/create"} className="text-primary">
-              <span className="flex items-center gap-2">
-                <IoAdd />
+            <Button
+              asChild
+              variant="transparent"
+              className="h-10 w-fit"
+              size="min"
+            >
+              <Link href={"/quiz/create"} className="text-primary">
+                <IoAdd className="mr-2" />
                 Stwórz quiz
-              </span>
-            </Link>
+              </Link>
+            </Button>
           </div>
           <p className="text-justify text-dark-300">
             Aby zacząć swoją przygodę z Quizami wybierz jeden z poniższych

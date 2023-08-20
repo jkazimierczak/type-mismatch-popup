@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { Ring } from "@uiball/loaders";
 import { DevTool } from "@hookform/devtools";
 import { MdDeleteOutline } from "react-icons/md";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import {
   IoAdd,
   IoArrowBack,
@@ -275,7 +275,9 @@ export default function EditQuestions(
           {!isNewQuestion && (
             <div className="grid grid-cols-1 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">
               {!isDeleting ? (
-                <MdDeleteOutline onClick={handleQuestionDelete} />
+                <Button variant="transparent" size="min">
+                  <MdDeleteOutline onClick={handleQuestionDelete} />
+                </Button>
               ) : (
                 <Ring color="white" size={16} />
               )}
@@ -286,7 +288,7 @@ export default function EditQuestions(
           type="text"
           {...register(`question`)}
           autoComplete="off"
-          className="w-full rounded border-none bg-neutral-800"
+          className="w-full rounded border-none bg-neutral-800 p-2"
         />
         {errors.question && (
           <p className="text-red-500">{errors.question?.message}</p>
@@ -316,12 +318,12 @@ export default function EditQuestions(
 
             <div className="mb-3 ml-[34px]">
               <Button
-                iconLeft={<IoAdd />}
-                fullWidth
+                size="fullWidth"
+                variant="outline"
                 onClick={addNewAnswerField}
                 disabled={isLoading || isCreating || isDeleting}
               >
-                Dodaj odpowiedź
+                <IoAdd className="mr-2" /> Dodaj odpowiedź
               </Button>
             </div>
           </div>
@@ -335,41 +337,37 @@ export default function EditQuestions(
             {!isContentModified ? (
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  iconLeft={<IoArrowBack />}
+                  variant="outline"
                   onClick={handleNavigationBackward}
                   disabled={pagination.isFirstPage || isLoading || isDeleting}
                 >
-                  Poprzednie
+                  <IoArrowBack className="mr-2" /> Poprzednie
                 </Button>
                 <Button
                   onClick={handleNavigationForward}
-                  variant="solid"
-                  fullWidth
                   disabled={
                     hasTooFewAnswers || !isValid || isLoading || isDeleting
                   }
-                  iconRight={isNewQuestion ? <IoAdd /> : <IoArrowForward />}
                 >
-                  {isNewQuestion ? "Dodaj" : "Kolejne"}
+                  {isNewQuestion ? "Dodaj" : "Kolejne"}{" "}
+                  {isNewQuestion ? (
+                    <IoAdd className="ml-2" />
+                  ) : (
+                    <IoArrowForward className="ml-2" />
+                  )}
                 </Button>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  iconLeft={<IoRefresh />}
                   onClick={handleQuestionReset}
                   disabled={isLoading}
+                  variant="outline"
                 >
-                  Cofnij
+                  <IoRefresh className="mr-2" /> Cofnij
                 </Button>
-                <Button
-                  onClick={handleQuestionSave}
-                  variant="solid"
-                  fullWidth
-                  disabled={isLoading}
-                  iconRight={<IoSave />}
-                >
-                  Zapisz
+                <Button onClick={handleQuestionSave} disabled={isLoading}>
+                  Zapisz <IoSave className="ml-2" />
                 </Button>
               </div>
             )}

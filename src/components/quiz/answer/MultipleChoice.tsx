@@ -3,8 +3,8 @@ import { type Control, useController } from "react-hook-form";
 import { type QuestionData } from "@/validators/question";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoAdd, IoChevronDown, IoChevronUp } from "react-icons/io5";
-import { IconContext } from "react-icons";
 import { type ComponentProps, forwardRef } from "react";
+import { Button } from "@/components/ui/button";
 
 interface MultipleChoiceProps extends ComponentProps<"div"> {
   isEditable?: boolean;
@@ -56,19 +56,25 @@ export const MultipleChoice = forwardRef<HTMLDivElement, MultipleChoiceProps>(
             {...answer}
             type="text"
             autoComplete="off"
-            className="w-full rounded border-none bg-neutral-800"
+            className="w-full rounded border-none bg-neutral-800 px-2 py-1.5"
           />
         </div>
         <div className="ml-[34px]">
           {isFocused && (
             <div className="grid justify-center rounded border border-neutral-700 py-1">
               <div className="grid grid-cols-4 gap-5">
-                <IconContext.Provider value={{ size: "1.125em" }}>
-                  <MdDeleteOutline onClick={onDelete} />
-                  <IoChevronUp onClick={onMoveUp} />
-                  <IoChevronDown onClick={onMoveDown} />
-                  <IoAdd onClick={onAppend} />
-                </IconContext.Provider>
+                <Button variant="transparent" size="min">
+                  <MdDeleteOutline size={18} onClick={onDelete} />
+                </Button>
+                <Button variant="transparent" size="min">
+                  <IoChevronUp size={18} onClick={onMoveUp} />
+                </Button>
+                <Button variant="transparent" size="min">
+                  <IoChevronDown size={18} onClick={onMoveDown} />
+                </Button>
+                <Button variant="transparent" size="min">
+                  <IoAdd size={18} onClick={onAppend} />
+                </Button>
               </div>
             </div>
           )}

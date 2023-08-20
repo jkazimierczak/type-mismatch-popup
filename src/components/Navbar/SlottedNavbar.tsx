@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { IoArrowBack } from "react-icons/io5";
 import { type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 interface SlottedNavbarProps {
   title: string;
@@ -24,7 +25,10 @@ export function SlottedNavbar({
   return (
     <nav className="flex items-center justify-between bg-dark-500 px-5 py-4">
       <p className="flex items-center gap-3">
-        <IoArrowBack size={24} onClick={handleNavigateBack} />
+        <Button variant="transparent" size="min">
+          <IoArrowBack size={24} onClick={handleNavigateBack} />
+        </Button>
+
         <span className="text-xl font-semibold">{title}</span>
       </p>
 

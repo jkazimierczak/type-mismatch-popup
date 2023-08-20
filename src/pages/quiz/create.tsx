@@ -1,4 +1,4 @@
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import { IoArrowForward } from "react-icons/io5";
 import { Input } from "@/components/Input";
 import {
@@ -140,12 +140,10 @@ export default function CreateQuiz() {
 
           <Button
             type="submit"
-            iconRight={<IoArrowForward />}
-            variant="solid"
             onClick={void handleSubmit(onSubmit)}
             disabled={Object.keys(errors).length > 0}
           >
-            Stwórz Quiz
+            Stwórz Quiz <IoArrowForward className="ml-2" />
           </Button>
         </div>
       </form>
