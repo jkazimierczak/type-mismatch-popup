@@ -27,6 +27,7 @@ import {
 } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MultipleChoice } from "@/components/quiz/answer";
+import Head from "next/head";
 
 const defaultValues: QuestionData = {
   question: "Question",
@@ -233,6 +234,10 @@ export default function EditQuestions(
 
   return (
     <>
+      <Head>
+        <title>Edytor pytań | Quizcamp</title>
+      </Head>
+
       <SlottedNavbar
         title={"Edytor pytań"}
         disableBack={isLoading}
