@@ -8,8 +8,8 @@ import { SlottedNavbar } from "@/components/Navbar/SlottedNavbar";
 import { api } from "@/utils/api";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import {
-  type QuestionData,
   questionCreateSchema,
+  type QuestionData,
   type QuestionEditData,
 } from "@/validators/question";
 import { usePagination } from "@/hooks/usePagination";
@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MultipleChoice } from "@/components/quiz/answer";
 import Head from "next/head";
 
+// TODO: Replace with empty strings
 const defaultValues: QuestionData = {
   question: "Question",
   answers: [
