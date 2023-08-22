@@ -28,6 +28,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MultipleChoice } from "@/components/quiz/answer";
 import Head from "next/head";
+import { Form } from "@/components/ui/form";
 
 // TODO: Replace with empty strings
 const defaultValues: QuestionData = {
@@ -86,6 +87,11 @@ export default function EditQuestions(
     }
   }, [pagination, wasCreated]);
 
+  const form = useForm({
+    resolver: zodResolver(questionCreateSchema),
+    mode: "onBlur",
+    defaultValues,
+  });
   const {
     control,
     register,
@@ -93,11 +99,7 @@ export default function EditQuestions(
     reset,
     getValues,
     formState: { errors, isValid, isDirty, dirtyFields },
-  } = useForm({
-    resolver: zodResolver(questionCreateSchema),
-    mode: "onBlur",
-    defaultValues,
-  });
+  } = form;
   // TODO: Make naming consistent
   const {
     fields: answers,
@@ -261,122 +263,124 @@ export default function EditQuestions(
 
       <DevTool control={control} />
 
-      <form
-        className="mx-4 mt-5 flex flex-col"
-        style={{ minHeight: "calc(100svh - 80px)" }}
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-lg font-medium">
-            Pytanie{" "}
-            <span className="ml-1.5 lining-nums tabular-nums text-neutral-400">
-              #{pagination.page + 1}
-            </span>
-          </p>
-          {!isNewQuestion && (
-            <div className="grid grid-cols-1 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">
-              {!isDeleting ? (
-                <Button variant="transparent" size="min">
-                  <MdDeleteOutline onClick={handleQuestionDelete} />
+      <Form {...form}>
+        <form
+          className="mx-4 mt-5 flex flex-col"
+          style={{ minHeight: "calc(100svh - 80px)" }}
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-lg font-medium">
+              Pytanie{" "}
+              <span className="ml-1.5 lining-nums tabular-nums text-neutral-400">
+                #{pagination.page + 1}
+              </span>
+            </p>
+            {!isNewQuestion && (
+              <div className="grid grid-cols-1 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">
+                {!isDeleting ? (
+                  <Button variant="transparent" size="min">
+                    <MdDeleteOutline onClick={handleQuestionDelete} />
+                  </Button>
+                ) : (
+                  <Ring color="white" size={16} />
+                )}
+              </div>
+            )}
+          </div>
+          <input
+            type="text"
+            {...register(`question`)}
+            autoComplete="off"
+            className="w-full rounded border-none bg-neutral-800 p-2"
+          />
+          {errors.question && (
+            <p className="text-red-500">{errors.question?.message}</p>
+          )}
+
+          <div className="mb-3 mt-5 flex justify-between">
+            <p className="text-lg font-medium">Odpowiedzi</p>
+          </div>
+
+          <div className="flex flex-grow flex-col justify-between">
+            <div>
+              {answers.map((field, idx) => (
+                <MultipleChoice
+                  key={field.rhf_id}
+                  control={control}
+                  isEditable={true}
+                  answerIdx={idx}
+                  onDelete={() => handleAnswerDelete(idx)}
+                  onMoveUp={() => handleAnswerMoveUp(idx)}
+                  onMoveDown={() => handleAnswerMoveDown(idx)}
+                  onAppend={() => handleAnswerAppend(idx)}
+                  disableMoveUp={focusedAnswer.isFirstPage}
+                  disableMoveDown={focusedAnswer.isLastPage}
+                  isFocused={focusedAnswer.page === idx}
+                  onFocus={() => focusedAnswer.setPage(idx)}
+                />
+              ))}
+
+              <div className="mb-3 ml-[30px]">
+                <Button
+                  size="fullWidth"
+                  variant="outline"
+                  onClick={addNewAnswerField}
+                  disabled={isLoading || isCreating || isDeleting}
+                >
+                  <IoAdd className="mr-2" /> Dodaj odpowiedź
                 </Button>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              {hasTooFewAnswers && (
+                <p className="mb-2 text-center text-neutral-600">
+                  Musisz dodać conajmniej 2 odpowiedzi.
+                </p>
+              )}
+              {!isContentModified ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleNavigationBackward}
+                    disabled={pagination.isFirstPage || isLoading || isDeleting}
+                  >
+                    <IoArrowBack className="mr-2" /> Poprzednie
+                  </Button>
+                  <Button
+                    onClick={handleNavigationForward}
+                    disabled={
+                      hasTooFewAnswers || !isValid || isLoading || isDeleting
+                    }
+                  >
+                    {isNewQuestion ? "Dodaj" : "Kolejne"}{" "}
+                    {isNewQuestion ? (
+                      <IoAdd className="ml-2" />
+                    ) : (
+                      <IoArrowForward className="ml-2" />
+                    )}
+                  </Button>
+                </div>
               ) : (
-                <Ring color="white" size={16} />
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={handleQuestionReset}
+                    disabled={isLoading}
+                    variant="outline"
+                  >
+                    <IoRefresh className="mr-2" /> Cofnij
+                  </Button>
+                  <Button onClick={handleQuestionSave} disabled={isLoading}>
+                    Zapisz <IoSave className="ml-2" />
+                  </Button>
+                </div>
               )}
             </div>
-          )}
-        </div>
-        <input
-          type="text"
-          {...register(`question`)}
-          autoComplete="off"
-          className="w-full rounded border-none bg-neutral-800 p-2"
-        />
-        {errors.question && (
-          <p className="text-red-500">{errors.question?.message}</p>
-        )}
-
-        <div className="mb-3 mt-5 flex justify-between">
-          <p className="text-lg font-medium">Odpowiedzi</p>
-        </div>
-
-        <div className="flex flex-grow flex-col justify-between">
-          <div>
-            {answers.map((field, idx) => (
-              <MultipleChoice
-                key={field.rhf_id}
-                control={control}
-                isEditable={true}
-                answerIdx={idx}
-                onDelete={() => handleAnswerDelete(idx)}
-                onMoveUp={() => handleAnswerMoveUp(idx)}
-                onMoveDown={() => handleAnswerMoveDown(idx)}
-                onAppend={() => handleAnswerAppend(idx)}
-                disableMoveUp={focusedAnswer.isFirstPage}
-                disableMoveDown={focusedAnswer.isLastPage}
-                isFocused={focusedAnswer.page === idx}
-                onFocus={() => focusedAnswer.setPage(idx)}
-              />
-            ))}
-
-            <div className="mb-3 ml-[34px]">
-              <Button
-                size="fullWidth"
-                variant="outline"
-                onClick={addNewAnswerField}
-                disabled={isLoading || isCreating || isDeleting}
-              >
-                <IoAdd className="mr-2" /> Dodaj odpowiedź
-              </Button>
-            </div>
           </div>
-
-          <div className="mb-4">
-            {hasTooFewAnswers && (
-              <p className="mb-2 text-center text-neutral-600">
-                Musisz dodać conajmniej 2 odpowiedzi.
-              </p>
-            )}
-            {!isContentModified ? (
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleNavigationBackward}
-                  disabled={pagination.isFirstPage || isLoading || isDeleting}
-                >
-                  <IoArrowBack className="mr-2" /> Poprzednie
-                </Button>
-                <Button
-                  onClick={handleNavigationForward}
-                  disabled={
-                    hasTooFewAnswers || !isValid || isLoading || isDeleting
-                  }
-                >
-                  {isNewQuestion ? "Dodaj" : "Kolejne"}{" "}
-                  {isNewQuestion ? (
-                    <IoAdd className="ml-2" />
-                  ) : (
-                    <IoArrowForward className="ml-2" />
-                  )}
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  onClick={handleQuestionReset}
-                  disabled={isLoading}
-                  variant="outline"
-                >
-                  <IoRefresh className="mr-2" /> Cofnij
-                </Button>
-                <Button onClick={handleQuestionSave} disabled={isLoading}>
-                  Zapisz <IoSave className="ml-2" />
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </>
   );
 }
