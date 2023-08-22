@@ -304,6 +304,7 @@ export default function EditQuestions(
               <MultipleChoice
                 key={field.rhf_id}
                 control={control}
+                isEditable={true}
                 answerIdx={idx}
                 onDelete={() => handleAnswerDelete(idx)}
                 onMoveUp={() => handleAnswerMoveUp(idx)}
