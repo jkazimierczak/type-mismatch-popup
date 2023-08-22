@@ -152,7 +152,9 @@ export default function EditQuestions(
       setDeletedAnswers([...deletedAnswers, answer.id as string]);
     }
     removeAnswerField(idx);
-    focusedAnswer.setPage(focusedAnswer.page - 1);
+    focusedAnswer.setPage(
+      focusedAnswer.isFirstPage ? 0 : focusedAnswer.page - 1
+    );
   }
 
   function handleAnswerMoveUp(idx: number) {
