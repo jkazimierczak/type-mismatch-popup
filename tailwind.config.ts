@@ -1,4 +1,5 @@
 import { type Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
@@ -11,6 +12,9 @@ export default {
       },
     },
     extend: {
+      height: {
+        screen: "100svh",
+      },
       fontFamily: {
         sans: ["var(--font-inter)"],
       },
@@ -42,6 +46,12 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      transitionProperty: ({ theme }) => ({
+        "opacity-colors": `${defaultTheme.transitionProperty.opacity}, ${defaultTheme.transitionProperty.colors}`,
+      }),
+      transitionDuration: {
+        250: "250ms",
       },
     },
   },
