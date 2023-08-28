@@ -67,15 +67,12 @@ export default function QuizLearn(
     keyName: "rhf_id",
   });
 
-  const focusedAnswer = usePagination(0, answers.length);
-
   // Reset form state and load new values
   useEffect(() => {
     if (questions) {
       reset(currentQuestion);
-      focusedAnswer.setPage(0);
     }
-  }, [reset, questions, pagination.page, currentQuestion, focusedAnswer]);
+  }, [reset, questions, pagination.page, currentQuestion]);
 
   if (!questions) return null;
 
