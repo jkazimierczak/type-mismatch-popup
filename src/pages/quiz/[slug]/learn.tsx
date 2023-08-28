@@ -27,7 +27,7 @@ import Head from "next/head";
 import { Form } from "@/components/ui/form";
 import { MultipleChoice } from "@/components/quiz/answer";
 
-export default function EditQuestions(
+export default function QuizLearn(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const { data: questionsRaw } = api.question.getAll.useQuery(
@@ -38,17 +38,17 @@ export default function EditQuestions(
       refetchOnWindowFocus: false,
     }
   );
-  const questions = useMemo(
-    () =>
-      questionsRaw?.map((question) => ({
-        ...question,
-        answers: question.answers.map((answer) => ({
-          ...answer,
-          isChecked: false,
-        })),
+  const questions = useMemo(() => {
+    if (!questionsRaw) return;
+
+    return questionsRaw?.map((question) => ({
+      ...question,
+      answers: question.answers.map((answer) => ({
+        ...answer,
+        isChecked: false,
       })),
-    [questionsRaw]
-  );
+    }));
+  }, [questionsRaw]);
   const maxPage = questions?.length ?? 0;
   const pagination = usePagination(0, maxPage, true);
   const isNewQuestion = pagination.isOverflow;
@@ -154,6 +154,7 @@ export default function EditQuestions(
                   key={field.rhf_id}
                   control={control}
                   answerIdx={idx}
+                  answer={answers[idx]?.answer || ""}
                 />
               ))}
             </div>
