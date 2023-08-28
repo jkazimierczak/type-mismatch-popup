@@ -81,10 +81,20 @@ export const MultipleChoiceEditable = forwardRef<
                 <Button variant="transparent" size="min" onClick={onDelete}>
                   <MdDeleteOutline size={18} />
                 </Button>
-                <Button variant="transparent" size="min" onClick={onMoveUp}>
+                <Button
+                  variant="transparent"
+                  size="min"
+                  onClick={onMoveUp}
+                  disabled={disableMoveUp}
+                >
                   <IoChevronUp size={18} />
                 </Button>
-                <Button variant="transparent" size="min" onClick={onMoveDown}>
+                <Button
+                  variant="transparent"
+                  size="min"
+                  onClick={onMoveDown}
+                  disabled={disableMoveDown}
+                >
                   <IoChevronDown size={18} />
                 </Button>
                 <Button variant="transparent" size="min" onClick={onAppend}>

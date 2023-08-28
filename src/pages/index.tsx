@@ -1,11 +1,10 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { api } from "@/utils/api";
 import { Hero } from "@/components/Hero/Hero";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
-import { GetServerSideProps } from "next";
+import { type GetServerSideProps } from "next";
 import { IoAdd } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 

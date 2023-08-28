@@ -60,12 +60,7 @@ export default function EditQuestions(
     mode: "onBlur",
     defaultValues: currentQuestion,
   });
-  const {
-    control,
-    reset,
-    getValues,
-    formState: { errors, isValid, isDirty, dirtyFields },
-  } = form;
+  const { control, reset, getValues } = form;
   const { fields: answers } = useFieldArray({
     control,
     name: `answers`,
@@ -80,7 +75,7 @@ export default function EditQuestions(
       reset(currentQuestion);
       focusedAnswer.setPage(0);
     }
-  }, [reset, questions, pagination.page, currentQuestion]);
+  }, [reset, questions, pagination.page, currentQuestion, focusedAnswer]);
 
   if (!questions) return null;
 

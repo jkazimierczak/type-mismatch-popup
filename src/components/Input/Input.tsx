@@ -2,7 +2,7 @@ import { IconContext } from "react-icons";
 import { ICON_18px } from "@/components/IconSizes";
 import React, { forwardRef } from "react";
 import { clsx } from "clsx";
-import { ChangeHandler } from "react-hook-form";
+import { type ChangeHandler } from "react-hook-form";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChange: ChangeHandler;

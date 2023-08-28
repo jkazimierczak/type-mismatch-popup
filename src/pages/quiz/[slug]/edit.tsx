@@ -121,7 +121,7 @@ export default function EditQuestions(
       setDeletedAnswers([]);
       focusedAnswer.setPage(0);
     }
-  }, [reset, questions, pagination.page, currentQuestion]);
+  }, [reset, questions, pagination.page, currentQuestion, focusedAnswer]);
 
   if (!questions) return null;
 
@@ -172,7 +172,7 @@ export default function EditQuestions(
     focusedAnswer.next();
   }
 
-  function handleAnswerAppend(idx: number) {
+  function handleAnswerAppend() {
     appendAnswerField({ answer: "", isCorrect: false });
   }
 
@@ -312,7 +312,7 @@ export default function EditQuestions(
                   onDelete={() => handleAnswerDelete(idx)}
                   onMoveUp={() => handleAnswerMoveUp(idx)}
                   onMoveDown={() => handleAnswerMoveDown(idx)}
-                  onAppend={() => handleAnswerAppend(idx)}
+                  onAppend={() => handleAnswerAppend()}
                   disableMoveUp={focusedAnswer.isFirstPage}
                   disableMoveDown={focusedAnswer.isLastPage}
                   isFocused={focusedAnswer.page === idx}
