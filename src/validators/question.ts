@@ -28,7 +28,17 @@ export const questionEditSchema = z
   })
   .partial();
 
+export const questionLearnSchema = z.object({
+  question: z.string(),
+  answers: z.array(
+    answerSchema.extend({
+      isChecked: z.boolean(),
+    })
+  ),
+});
+
 export type AnswerData = z.infer<typeof answerSchema>;
 export type AnswerReadData = z.infer<typeof answerReadSchema>;
 export type QuestionData = z.infer<typeof questionCreateSchema>;
+export type QuestionLearnData = z.infer<typeof questionLearnSchema>;
 export type QuestionEditData = z.infer<typeof questionEditSchema>;

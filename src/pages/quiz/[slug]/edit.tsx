@@ -26,16 +26,15 @@ import {
   IoSave,
 } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MultipleChoice } from "@/components/quiz/answer";
+import { MultipleChoiceEditable } from "@/components/quiz/answer";
 import Head from "next/head";
 import { Form } from "@/components/ui/form";
 
-// TODO: Replace with empty strings
 const defaultValues: QuestionData = {
-  question: "Question",
+  question: "",
   answers: [
-    { answer: "A", isCorrect: false },
-    { answer: "B", isCorrect: false },
+    { answer: "", isCorrect: false },
+    { answer: "", isCorrect: false },
   ],
 };
 
@@ -306,10 +305,9 @@ export default function EditQuestions(
           <div className="flex flex-grow flex-col justify-between">
             <div>
               {answers.map((field, idx) => (
-                <MultipleChoice
+                <MultipleChoiceEditable
                   key={field.rhf_id}
                   control={control}
-                  isEditable={true}
                   answerIdx={idx}
                   onDelete={() => handleAnswerDelete(idx)}
                   onMoveUp={() => handleAnswerMoveUp(idx)}
