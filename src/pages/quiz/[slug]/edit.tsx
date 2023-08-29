@@ -99,7 +99,6 @@ export default function EditQuestions(
     getValues,
     formState: { errors, isValid, isDirty, dirtyFields },
   } = form;
-  // TODO: Make naming consistent
   const {
     fields: answers,
     append: appendAnswerField,
@@ -121,7 +120,7 @@ export default function EditQuestions(
       setDeletedAnswers([]);
       focusedAnswer.setPage(0);
     }
-  }, [reset, questions, pagination.page, currentQuestion, focusedAnswer]);
+  }, [pagination.page, currentQuestion]);
 
   if (!questions) return null;
 
