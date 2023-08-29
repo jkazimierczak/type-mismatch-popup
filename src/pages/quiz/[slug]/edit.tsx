@@ -102,6 +102,7 @@ export default function EditQuestions(
   const {
     fields: answers,
     append: appendAnswerField,
+    insert: insertAnswerField,
     move: moveAnswerField,
     remove: removeAnswerField,
   } = useFieldArray({
@@ -171,8 +172,8 @@ export default function EditQuestions(
     focusedAnswer.next();
   }
 
-  function handleAnswerAppend() {
-    appendAnswerField({ answer: "", isCorrect: false });
+  function handleAnswerAppend(idx: number) {
+    insertAnswerField(idx + 1, { answer: "", isCorrect: false });
   }
 
   function addNewAnswerField() {
@@ -311,7 +312,7 @@ export default function EditQuestions(
                   onDelete={() => handleAnswerDelete(idx)}
                   onMoveUp={() => handleAnswerMoveUp(idx)}
                   onMoveDown={() => handleAnswerMoveDown(idx)}
-                  onAppend={() => handleAnswerAppend()}
+                  onAppend={() => handleAnswerAppend(idx)}
                   disableMoveUp={focusedAnswer.isFirstPage}
                   disableMoveDown={focusedAnswer.isLastPage}
                   isFocused={focusedAnswer.page === idx}
