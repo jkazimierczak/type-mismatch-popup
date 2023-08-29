@@ -27,6 +27,7 @@ import Head from "next/head";
 import { Form } from "@/components/ui/form";
 import { MultipleChoice } from "@/components/quiz/answer";
 import { useToggle } from "@/hooks/useToggle";
+import { clsx } from "clsx";
 
 export default function QuizLearn(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -67,6 +68,20 @@ export default function QuizLearn(
     name: `answers`,
     keyName: "rhf_id",
   });
+
+  const correctAnswers = answers.reduce(
+    (acc, answer, idx) => {
+      if (answer.isCorrect) {
+        acc["total"]++;
+        acc["checked"] += Number(getValues(`answers.${idx}.isChecked`));
+      }
+      return acc;
+    },
+    {
+      total: 0,
+      checked: 0,
+    }
+  );
 
   // Reset form state and load new values
   useEffect(() => {
@@ -144,6 +159,18 @@ export default function QuizLearn(
 
           <div className="mb-3 mt-3 flex justify-between">
             <p className="text-lg font-medium">Odpowiedzi</p>
+            {showVerificationResult.value && (
+              <span
+                className={clsx({
+                  "flex items-center gap-2 tabular-nums transition-colors":
+                    true,
+                  "text-green-400":
+                    correctAnswers.checked === correctAnswers.total,
+                })}
+              >
+                {correctAnswers.checked}/{correctAnswers.total}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-grow flex-col justify-between">
