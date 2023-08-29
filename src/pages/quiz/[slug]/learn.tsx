@@ -51,10 +51,8 @@ export default function QuizLearn(
     }));
   }, [questionsRaw]);
   const maxPage = questions?.length ?? 0;
-  const pagination = usePagination(0, maxPage, true);
+  const pagination = usePagination(0, maxPage);
   const showVerificationResult = useToggle(false);
-
-  const isNewQuestion = pagination.isOverflow;
 
   const currentQuestion = questions && questions[pagination.page];
 
@@ -85,7 +83,7 @@ export default function QuizLearn(
   };
 
   function handleNavigationForward() {
-    isNewQuestion ? onSubmit(getValues()) : pagination.next();
+    pagination.next();
   }
 
   function handleNavigationBackward() {
