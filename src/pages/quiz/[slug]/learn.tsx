@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import { Form } from "@/components/ui/form";
 import { MultipleChoice } from "@/components/quiz/answer";
+import { useToggle } from "@/hooks/useToggle";
 
 export default function QuizLearn(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -51,6 +52,8 @@ export default function QuizLearn(
   }, [questionsRaw]);
   const maxPage = questions?.length ?? 0;
   const pagination = usePagination(0, maxPage, true);
+  const showVerificationResult = useToggle(false);
+
   const isNewQuestion = pagination.isOverflow;
 
   const currentQuestion = questions && questions[pagination.page];
@@ -71,6 +74,7 @@ export default function QuizLearn(
   useEffect(() => {
     if (questions) {
       reset(currentQuestion);
+      showVerificationResult.setValue(false);
     }
   }, [reset, questions, pagination.page, currentQuestion]);
 
@@ -89,7 +93,7 @@ export default function QuizLearn(
   }
 
   function handleVerifyAnswers() {
-    console.warn("learn:verify");
+    showVerificationResult.toggle();
   }
 
   return (
@@ -151,7 +155,11 @@ export default function QuizLearn(
                   key={field.rhf_id}
                   control={control}
                   answerIdx={idx}
-                  answer={answers[idx]?.answer || ""}
+                  answer={{
+                    answer: answers[idx]!.answer,
+                    isCorrect: answers[idx]!.isCorrect,
+                  }}
+                  peekAnswers={showVerificationResult.value}
                 />
               ))}
             </div>
