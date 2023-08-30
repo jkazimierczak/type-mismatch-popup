@@ -193,7 +193,7 @@ export default function EditQuestions(
     if (dirtyFields.answers) {
       newQuestion.answers = [];
 
-      for (let i = 0; i < dirtyFields.answers.length; i++) {
+      for (let i = 0; i < dirtyFields.answers?.length; i++) {
         const item = values.answers[i];
         const itemDirtiness = dirtyFields.answers[i];
 
