@@ -236,6 +236,17 @@ export default function EditQuestions(
     pagination.previous();
   }
 
+  function getNavbarRightSlotContent() {
+    if (isNewQuestion) {
+      if (isCreating) {
+        return <Ring color="white" size={16} />;
+      }
+      return "Nowe pytanie";
+    }
+
+    return `Pytanie ${pagination.page + 1}/${questions.length ?? 1}`;
+  }
+
   return (
     <>
       <Head>
@@ -247,15 +258,7 @@ export default function EditQuestions(
         disableBack={isLoading}
         rightSlot={
           <p className="lining-nums tabular-nums text-neutral-400">
-            {isNewQuestion ? (
-              isCreating ? (
-                <Ring color="white" size={16} />
-              ) : (
-                "Nowe pytanie"
-              )
-            ) : (
-              `Pytanie ${pagination.page + 1}/${questions.length ?? 1}`
-            )}
+            {getNavbarRightSlotContent()}
           </p>
         }
       />
