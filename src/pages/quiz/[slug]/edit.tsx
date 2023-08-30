@@ -29,6 +29,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MultipleChoiceEditable } from "@/components/quiz/answer";
 import Head from "next/head";
 import { Form } from "@/components/ui/form";
+import { clsx } from "clsx";
+import { AnswerEditionToolbar } from "@/components/quiz/answer/AnswerEditionToolbar";
 
 const defaultNewQuestionValues: QuestionData = {
   question: "",
@@ -237,6 +239,8 @@ export default function EditQuestions(
   }
 
   function getNavbarRightSlotContent() {
+    if (!questions) return;
+
     if (isNewQuestion) {
       if (isCreating) {
         return <Ring color="white" size={16} />;
@@ -308,19 +312,28 @@ export default function EditQuestions(
           <div className="flex flex-grow flex-col justify-between">
             <div>
               {answers.map((field, idx) => (
-                <MultipleChoiceEditable
-                  key={field.rhf_id}
-                  control={control}
-                  answerIdx={idx}
-                  onDelete={() => handleAnswerDelete(idx)}
-                  onMoveUp={() => handleAnswerMoveUp(idx)}
-                  onMoveDown={() => handleAnswerMoveDown(idx)}
-                  onAppend={() => handleAnswerAppend(idx)}
-                  disableMoveUp={focusedAnswer.isFirstPage}
-                  disableMoveDown={focusedAnswer.isLastPage}
-                  isFocused={focusedAnswer.page === idx}
-                  onFocus={() => focusedAnswer.setPage(idx)}
-                />
+                <div key={field.rhf_id}>
+                  <MultipleChoiceEditable
+                    className={clsx({
+                      "mb-2": true,
+                      "!mb-1": focusedAnswer.page === idx,
+                    })}
+                    control={control}
+                    answerIdx={idx}
+                    onFocus={() => focusedAnswer.setPage(idx)}
+                  />
+                  {focusedAnswer.page === idx && (
+                    <AnswerEditionToolbar
+                      className="mb-2 ml-[30px]"
+                      onDelete={() => handleAnswerDelete(idx)}
+                      onMoveUp={() => handleAnswerMoveUp(idx)}
+                      onMoveDown={() => handleAnswerMoveDown(idx)}
+                      onAppend={() => handleAnswerAppend(idx)}
+                      disableMoveUp={focusedAnswer.isFirstPage}
+                      disableMoveDown={focusedAnswer.isLastPage}
+                    />
+                  )}
+                </div>
               ))}
 
               <div className="mb-3 ml-[30px]">
