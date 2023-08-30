@@ -30,7 +30,7 @@ import { MultipleChoiceEditable } from "@/components/quiz/answer";
 import Head from "next/head";
 import { Form } from "@/components/ui/form";
 
-const defaultValues: QuestionData = {
+const defaultNewQuestionValues: QuestionData = {
   question: "",
   answers: [
     { answer: "", isCorrect: false },
@@ -89,7 +89,7 @@ export default function EditQuestions(
   const form = useForm({
     resolver: zodResolver(questionCreateSchema),
     mode: "onBlur",
-    defaultValues,
+    defaultValues: defaultNewQuestionValues,
   });
   const {
     control,
@@ -117,7 +117,7 @@ export default function EditQuestions(
   // Reset form state and load new values
   useEffect(() => {
     if (questions) {
-      reset(currentQuestion ?? defaultValues);
+      reset(currentQuestion ?? defaultNewQuestionValues);
       setDeletedAnswers([]);
       focusedAnswer.setPage(0);
     }
