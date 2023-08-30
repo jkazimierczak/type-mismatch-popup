@@ -341,43 +341,47 @@ export default function EditQuestions(
                   Musisz dodać conajmniej 2 odpowiedzi.
                 </p>
               )}
-              {!isContentModified ? (
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleNavigationBackward}
-                    disabled={pagination.isFirstPage || isLoading || isDeleting}
-                  >
-                    <IoArrowBack className="mr-2" /> Poprzednie
-                  </Button>
-                  <Button
-                    onClick={handleNavigationForward}
-                    disabled={
-                      hasTooFewAnswers || !isValid || isLoading || isDeleting
-                    }
-                  >
-                    {isNewQuestion ? "Dodaj" : "Kolejne"}{" "}
-                    {isNewQuestion ? (
-                      <IoAdd className="ml-2" />
-                    ) : (
-                      <IoArrowForward className="ml-2" />
-                    )}
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    onClick={handleQuestionReset}
-                    disabled={isLoading}
-                    variant="outline"
-                  >
-                    <IoRefresh className="mr-2" /> Cofnij
-                  </Button>
-                  <Button onClick={handleQuestionSave} disabled={isLoading}>
-                    Zapisz <IoSave className="ml-2" />
-                  </Button>
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-2">
+                {!isContentModified ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={handleNavigationBackward}
+                      disabled={
+                        pagination.isFirstPage || isLoading || isDeleting
+                      }
+                    >
+                      <IoArrowBack className="mr-2" /> Poprzednie
+                    </Button>
+                    <Button
+                      onClick={handleNavigationForward}
+                      disabled={
+                        hasTooFewAnswers || !isValid || isLoading || isDeleting
+                      }
+                    >
+                      {isNewQuestion ? "Dodaj" : "Kolejne"}{" "}
+                      {isNewQuestion ? (
+                        <IoAdd className="ml-2" />
+                      ) : (
+                        <IoArrowForward className="ml-2" />
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      onClick={handleQuestionReset}
+                      disabled={isLoading}
+                      variant="outline"
+                    >
+                      <IoRefresh className="mr-2" /> Cofnij
+                    </Button>
+                    <Button onClick={handleQuestionSave} disabled={isLoading}>
+                      Zapisz <IoSave className="ml-2" />
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </form>
