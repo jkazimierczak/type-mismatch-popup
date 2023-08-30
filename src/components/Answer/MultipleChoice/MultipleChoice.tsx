@@ -1,5 +1,5 @@
 import { type Control, useController } from "react-hook-form";
-import { AnswerData, type QuestionLearnData } from "@/validators/question";
+import { type AnswerData, type QuestionLearnData } from "@/validators/question";
 import { type ComponentProps, forwardRef, useId } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";

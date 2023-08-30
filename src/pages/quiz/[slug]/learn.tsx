@@ -18,14 +18,12 @@ import { Button } from "@/components/ui/button";
 import {
   IoArrowBack,
   IoArrowForward,
-  IoBookmarkOutline,
   IoCheckmarkDoneOutline,
-  IoGridOutline,
 } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import { Form } from "@/components/ui/form";
-import { MultipleChoice } from "@/components/quiz/answer";
+import { MultipleChoice } from "@/components/Answer";
 import { useToggle } from "@/hooks/useToggle";
 import { clsx } from "clsx";
 
@@ -140,18 +138,17 @@ export default function QuizLearn(
                 #{pagination.page + 1}
               </span>
             </p>
-            <div className="grid grid-cols-2 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">
-              <Button variant="transparent" size="min">
-                <IoBookmarkOutline
-                  onClick={() => console.warn("toolbar:bookmark")}
-                />
-              </Button>
-              <Button variant="transparent" size="min">
-                <IoGridOutline
-                  onClick={() => console.warn("toolbar:bookmark")}
-                />
-              </Button>
-            </div>
+            {/* TODO: Implement */}
+            {/*<div className="grid grid-cols-2 items-center justify-center gap-4 rounded bg-neutral-800 px-4 py-1">*/}
+            {/*  <Button variant="transparent" size="min">*/}
+            {/*    <IoBookmarkOutline*/}
+            {/*      onClick={() => console.warn("toolbar:bookmark")}*/}
+            {/*    />*/}
+            {/*  </Button>*/}
+            {/*  <Button variant="transparent" size="min">*/}
+            {/*    <IoGridOutline onClick={() => console.warn("toolbar:grid")} />*/}
+            {/*  </Button>*/}
+            {/*</div>*/}
           </div>
           <p className="w-full rounded border-none p-2 text-center font-medium">
             {form.getValues("question")}

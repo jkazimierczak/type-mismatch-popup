@@ -26,11 +26,13 @@ import {
   IoSave,
 } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MultipleChoiceEditable } from "@/components/quiz/answer";
 import Head from "next/head";
 import { Form } from "@/components/ui/form";
 import { clsx } from "clsx";
-import { AnswerEditionToolbar } from "@/components/quiz/answer/AnswerEditionToolbar";
+import {
+  MultipleChoiceEditable,
+  AnswerEditionToolbar,
+} from "@/components/Answer";
 
 const defaultNewQuestionValues: QuestionData = {
   question: "",
