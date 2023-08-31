@@ -57,7 +57,7 @@ export const MultipleChoice = forwardRef<HTMLDivElement, MultipleChoiceProps>(
             className={clsx({
               "w-full rounded border border-neutral-800 bg-neutral-800 px-2 py-1.5 transition-all duration-100":
                 true,
-              "bg-green-400/70": isCorrectChecked,
+              "!bg-green-400/70": isCorrectChecked,
               "!border-green-400/70 text-green-400/70": isCorrectUnchecked,
               "bg-red-400/70": isIncorrectChecked,
             })}
