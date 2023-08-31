@@ -29,9 +29,10 @@ enum Visibility {
 }
 
 model Question {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  question     String
-  questionType QuestionType
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question       String
+  questionType   QuestionType
+  sequenceNumber Int
 
   // Relations
   quiz   Quiz   @relation(fields: [quizId], references: [id], map: "fk_quiz")
@@ -46,9 +47,10 @@ enum QuestionType {
 }
 
 model Answer {
-  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  answer    String
-  isCorrect Boolean
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  answer         String
+  isCorrect      Boolean
+  sequenceNumber Int
 
   // Relations
   questions  Question @relation(fields: [questionId], references: [id], map: "fk_question", onDelete: Cascade)

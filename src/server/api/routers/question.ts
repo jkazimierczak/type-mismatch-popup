@@ -24,8 +24,13 @@ export const questionRouter = createTRPCRouter({
           },
         },
         include: {
-          answers: true,
+          answers: {
+            orderBy: {
+              sequenceNumber: "asc",
+            },
+          },
         },
+        orderBy: [{ sequenceNumber: "asc" }],
       });
     }),
 
