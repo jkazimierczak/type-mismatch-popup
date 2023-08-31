@@ -199,7 +199,12 @@ export default function QuizLearn(
                 <Button variant="outline" onClick={handleVerifyAnswers}>
                   <IoCheckmarkDoneOutline className="mr-2" /> Sprawdź
                 </Button>
-                <Button className="w-2/3" onClick={handleNavigationForward}>
+                <Button
+                  className="w-2/3"
+                  variant="outline"
+                  onClick={handleNavigationForward}
+                  disabled={pagination.isLastPage}
+                >
                   <IoArrowForward />
                 </Button>
               </div>
